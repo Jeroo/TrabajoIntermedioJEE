@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <h:head>
+         <!--Import Google Icon Font-->
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+        <!--Import materialize.css-->
+        <link type="text/css" rel="stylesheet" href="resources/css/materialize.css"  media="screen,projection"/>
+         <!--Import material.min.css-->
+        <link type="text/css" rel="stylesheet" href="resources/css/material.min.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="resources/css/styles.css"  media="screen,projection"/>
+
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <h:outputStylesheet name="/css/default.css"/>
+        <h:outputStylesheet name="/css/cssLayout.css"/>
+        <title>Tienda Web</title>
+    </h:head>
+
+    <h:body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">     
+        
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <div id="top">
+              <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
+                <div class="mdl-layout--large-screen-only mdl-layout__header-row">
+                </div>
+                <div class="mdl-layout--large-screen-only mdl-layout__header-row">
+                  <h3>Tienda de venta de Productos</h3>
+                </div>
+                <div class="mdl-layout--large-screen-only mdl-layout__header-row">
+                </div>
+                <div class="mdl-layout__tab-bar mdl-js-ripple-effect mdl-color--primary-dark">
+                  <a href="#overview" class="mdl-layout__tab">Lista Productos</a>
+                  <a href="#features" class="mdl-layout__tab is-active">Carrito</a>
+                  <a href="#features" class="mdl-layout__tab">Log In</a>
+                  <a href="#features" class="mdl-layout__tab">Registrarse</a>
+                </div>
+              </header>
+            <ui:insert name="top"></ui:insert>
+        </div>
+
+        <div id="content" class="center_content">          
+   
+            <ui:insert name="content">Content</ui:insert>
+        </div>
+
+        <div id="bottom">
+            <ui:insert name="bottom"></ui:insert>
+        </div>
+       </div>
+        
+        <!--Import jQuery before materialize.js-->
+      <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <script type="text/javascript" src="resources/js/materialize.js"></script>
+      <script type="text/javascript" src="resources/js/material.min.js"></script>
+      
+      <script>
+          
+        $(document).ready(function(){
+           //$('ul.tabs').tabs();
+         });
+
+      </script>
+    </h:body>
+
+</html>
+
+
