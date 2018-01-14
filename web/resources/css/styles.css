@@ -251,3 +251,8 @@ html, body {
 .mdl-demo .mdl-menu__container {
   z-index: 99;
 }
+
+
+/* Estilos personalizados */
+
+.logoutClass {background-image: url('./resources/images/logout.png'); }

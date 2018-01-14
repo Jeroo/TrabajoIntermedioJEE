@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template_principal.xhtml">
+
+            <ui:define name="content">
+                 <h:form id="menuAdmin">
+                    <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
+                    
+                    <p:menubar>
+                        <p:menuitem id="Reponer" value="Reponer" outcome="/index" icon="ui-icon-home"/>
+                        <p:menuitem id="Agregar" value="Agregar" outcome="/index" icon="ui-icon-home"/>
+                        <p:menuitem id="Borrar" value="Borrar" outcome="/index" icon="ui-icon-trash"/>
+                        <p:menuitem id="Modificar" value="Modificar" outcome="/index" icon="ui-icon-pencil"/>
+                    </p:menubar>
+                    
+                    <p:dataTable id="listado" value="#{prodMB.listaProductospool}" var="productospool" editable="true" style="margin-bottom:20px">
+
+                        <f:facet name="header">
+                            Listado de Productos
+                        </f:facet>
+
+                        <p:ajax event="rowEdit" listener="#{prodMB.onRowEdit}" update=":menuAdmin:msgs" />
+                        <p:ajax event="rowEditCancel" listener="#{prodMB.onRowCancel}" update=":menuAdmin:msgs" />
+
+                        <p:column headerText="CODIGO">                            
+                            <h:outputText value="#{productospool.codigoproducto}" />
+                        </p:column>
+                        <p:column headerText="NOMBRE">
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{productospool.nombre}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{productospool.nombre}" style="width:100%"/></f:facet>
+                            </p:cellEditor>                                
+                        </p:column>
+                         <p:column headerText="DESCRICION">
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{productospool.descripcion}" /></f:facet>
+                                <f:facet name="input"><p:inputText value="#{productospool.descripcion}" style="width:100%"/></f:facet>
+                            </p:cellEditor>                                
+                        </p:column>
+                         <p:column headerText="CANTIDAD">
+                             <f:facet name="output"><h:outputText value="#{prodMB.getCantidadStock(productospool.codigoproducto)}" /></f:facet>
+                        </p:column>
+                        <p:column style="width:32px">
+                            <p:rowEditor />
+                        </p:column>
+
+                    </p:dataTable>
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

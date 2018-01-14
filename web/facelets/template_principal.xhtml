@@ -2,9 +2,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <h:head>
+        
+        <link rel="shortcut icon" type="image/png" href="resources/images/tiendafavicon.png"/>
+        
          <!--Import Google Icon Font-->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
         <!--Import materialize.css-->
@@ -29,17 +35,188 @@
                 <div class="mdl-layout--large-screen-only mdl-layout__header-row">
                 </div>
                 <div class="mdl-layout--large-screen-only mdl-layout__header-row">
-                  <h3>Tienda de venta de Productos Informáticos</h3>
+                  <h3>Tienda de Computadoras</h3>
                 </div>
                 <div class="mdl-layout--large-screen-only mdl-layout__header-row">
                 </div>
                 <div class="mdl-layout__tab-bar mdl-js-ripple-effect mdl-color--primary-dark">
-                  <a href="#overview" class="mdl-layout__tab is-active">Lista Productos</a>
-                  <a href="#features" class="mdl-layout__tab">Carrito</a>
-                  <a href="#features" class="mdl-layout__tab">Log In</a>
-                  <a href="#features" class="mdl-layout__tab">Registrarse</a>
+                  <h:link value="Lista Productos" class="mdl-layout__tab is-active" outcome="/index.xhtml" />
+                  <a href="javascript:void(0)" onclick="PF('dlg5').show();" class="mdl-layout__tab">Carrito (#{prodMB.agregarAlCarrito()})  
+                 
+                  </a>                 
+                        
+                      <p:dialog modal="true" header="Carrito" widgetVar="dlg5" showEffect="explode" hideEffect="bounce" height="450">                            
+                        
+                           <p></p>
+                           <p></p>
+                           <h3>Listado de productos seleccionados</h3>
+                           <h:form>
+                               <p:panel header="Carrito de la Compra">
+                                   <p:panelGrid columns="2">
+                                       <f:facet name="header">
+                                           <p:graphicImage id="usrImg" url="resources/images/usr.jpg"/>
+                                       </f:facet>
+                                       <p:outputLabel for="nom" value="Nombre de usuario"/>
+                                       <p:inputText id="nom" value="#{prodMB.usuario}" size="50" required="true" requiredMessage="No se admiten nulos en el nombre "/>
+                                        <p:outputLabel for="pass" value="Contraseña:"/>
+                                        <p:password id="pass" value="#{prodMB.clave}" size="50" required="true" requiredMessage="No se admiten en la contraseña"/>
+                                        <f:facet name="footer">
+                                            <p:commandButton value="Acceder" action="#{prodMB.getPage}" oncomplete="PF('dlg5').hide();" /> 
+                                       </f:facet>
+                                   </p:panelGrid>
+                               </p:panel>
+                           </h:form>                 
+                       
+                        </p:dialog>
+                  
+                  <c:choose>
+                    <c:when test="#{sessionScope.user eq null}">
+                        <a href="javascript:void(0)" class="mdl-layout__tab" onclick="PF('dlg3').show();">Log In</a>
+                        <a href="javascript:void(0)" class="mdl-layout__tab" onclick="PF('dlg4').show();">Registrarse</a>
+                    
+                        
+                      <p:dialog modal="true" header="Log In" widgetVar="dlg3" showEffect="explode" hideEffect="bounce" height="650">                            
+                         
+                           <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
+                           <p></p>
+                           <p></p>
+                           <h5>Introduce tu nombre de usuario y clave</h5>
+                           <h:form>
+                               <p:panel header="Identificación de Usuarios">
+                                   <p:panelGrid columns="2">
+                                       
+                                        <f:facet name="header">
+                                            <center>
+                                                <p:graphicImage id="usrImg" url="../resources/images/usr.png"/>
+                                            </center>
+                                        </f:facet>
+                                 
+                                       <p:outputLabel for="nom" value="Nombre de usuario"/>
+                                       <p:inputText id="nom" value="#{prodMB.usuario}" size="50" required="true" requiredMessage="No se admiten nulos en el nombre "/>
+                                        <p:outputLabel for="pass" value="Contraseña:"/>
+                                        <p:password id="pass" value="#{prodMB.clave}" size="50" required="true" requiredMessage="No se admiten en la contraseña"/>
+                                        <f:facet name="footer">
+                                            <p:commandButton value="Acceder" action="#{prodMB.getPage}" /> 
+                                       </f:facet>
+                                   </p:panelGrid>
+                               </p:panel>
+                           </h:form>                
+                        
+                        </p:dialog>
+                        
+                       <p:dialog modal="true" header="Registrarse" widgetVar="dlg4" showEffect="explode" hideEffect="bounce" height="800">                            
+                        <center>
+                           <p></p>
+                           <p></p>
+                           <h3>Introduce sus datos para poder registrarse</h3>
+                           <h:form>
+                               <p:panel header="Registro de Usuarios">
+                                   <p:panelGrid columns="2">
+                                       
+                                        <p:outputLabel for="nom" value="Nombre"/>
+                                        <p:inputText id="nom" value="#{prodMB.nombre}" size="50" required="true" requiredMessage="No se admiten nulos en el nombre "/>
+                                        <p:outputLabel for="ape" value="Apellidos"/>
+                                        <p:inputText id="ape" value="#{prodMB.apellidos}" size="50" required="true" requiredMessage="No se admiten nulos en el apellidos "/>
+                                        <p:outputLabel for="tarj" value="No. Tarjeta de credito"/>
+                                        <p:inputText id="tarj" value="#{prodMB.tarjetacredito}" size="50" required="true" requiredMessage="No se admiten nulos en la tarjetacredito "/>
+                                        <p:outputLabel for="usr" value="Usuario"/>
+                                        <p:inputText id="usr" value="#{prodMB.usuario}" size="50" required="true" requiredMessage="No se admiten nulos en el usuario "/>
+                                        
+                                        <p:outputLabel for="pass" value="Contraseña:"/>
+                                        <p:password id="pass" value="#{prodMB.clave}" size="50" required="true" requiredMessage="No se admiten en la contraseña"/>
+                                        
+                                        <f:facet name="footer">
+                                            <p:commandButton value="Registrarse" action="#{prodMB.registroUsuarios}" oncomplete="PF('dlg4').hide();" /> 
+                                       </f:facet>
+                                   </p:panelGrid>
+                               </p:panel>
+                           </h:form>                 
+                        </center>
+                        </p:dialog>
+                    </c:when>
+                   
+                    <c:when test="#{empty sessionScope.user}"> 
+                       <a href="#features" class="mdl-layout__tab" onclick="PF('dlg3').show();">Log In</a>
+                        <a href="#features" class="mdl-layout__tab" onclick="PF('dlg4').show();">Registrarse</a>
+                    
+                        
+                      <p:dialog modal="true" header="Log In" widgetVar="dlg3" showEffect="explode" hideEffect="bounce" height="650">                            
+                        <center>
+                           <p></p>
+                           <p></p>
+                           <h3>Introduce tu nombre de usuario y clave</h3>
+                           <h:form>
+                               <p:panel header="Identificación de Usuarios">
+                                   <p:panelGrid columns="2">
+                                        <f:facet name="header">
+                                            <center>
+                                                <p:graphicImage id="usrImg" url="../resources/images/usr.png"/>
+                                            </center>
+                                        </f:facet>
+                                       <p:outputLabel for="nom" value="Nombre de usuario"/>
+                                       <p:inputText id="nom" value="#{prodMB.usuario}" size="50" required="true" requiredMessage="No se admiten nulos en el nombre "/>
+                                        <p:outputLabel for="pass" value="Contraseña:"/>
+                                        <p:password id="pass" value="#{prodMB.clave}" size="50" required="true" requiredMessage="No se admiten en la contraseña"/>
+                                        <f:facet name="footer">
+                                            <p:commandButton value="Acceder" action="#{prodMB.getPage}" />
+                                       </f:facet>
+                                   </p:panelGrid>
+                               </p:panel>
+                           </h:form>                 
+                       </center>
+                        </p:dialog>
+                        
+                       <p:dialog modal="true" header="Registrarse" widgetVar="dlg4" showEffect="explode" hideEffect="bounce" height="800">                            
+                        <center>
+                           <p></p>
+                           <p></p>
+                           <h3>Introduce sus datos para poder registrarse</h3>
+                           <h:form>
+                               <p:panel header="Registro de Usuarios">
+                                   <p:panelGrid columns="2">
+                                       
+                                        <p:outputLabel for="nom" value="Nombre"/>
+                                        <p:inputText id="nom" value="#{prodMB.nombre}" size="50" required="true" requiredMessage="No se admiten nulos en el nombre "/>
+                                        <p:outputLabel for="ape" value="Apellidos"/>
+                                        <p:inputText id="ape" value="#{prodMB.apellidos}" size="50" required="true" requiredMessage="No se admiten nulos en el apellidos "/>
+                                        <p:outputLabel for="tarj" value="No. Tarjeta de credito"/>
+                                        <p:inputText id="tarj" value="#{prodMB.tarjetacredito}" size="50" required="true" requiredMessage="No se admiten nulos en la tarjetacredito "/>
+                                        <p:outputLabel for="usr" value="Usuario"/>
+                                        <p:inputText id="usr" value="#{prodMB.usuario}" size="50" required="true" requiredMessage="No se admiten nulos en el usuario "/>
+                                        
+                                        <p:outputLabel for="pass" value="Contraseña:"/>
+                                        <p:password id="pass" value="#{prodMB.clave}" size="50" required="true" requiredMessage="No se admiten en la contraseña"/>
+                                        
+                                        <f:facet name="footer">
+                                            <p:commandButton value="Registrarse" action="#{prodMB.registroUsuarios}" oncomplete="dlg4.hide();" />
+                                       </f:facet>
+                                   </p:panelGrid>
+                               </p:panel>
+                           </h:form>                 
+                        </center>
+                        </p:dialog>
+                    </c:when>
+                    <c:when test="#{not empty sessionScope.user}">
+                        <span class="mdl-layout__tab">#{sessionScope.user}</span>
+                        <p:commandButton  class="mdl-layout__tab" value="Salír" action="#{prodMB.logout}"  
+                                          
+                                          style="background-image: url('./resources/images/logout.png');
+                                          width: 5%;
+                                          height:10%;
+                                          background-repeat: no-repeat;
+                                          text-align: center;
+                                          top:7%;
+                                          color: indigo;
+                                          background-color: white
+                                          " oncomplete="location.reload();"/> 
+                    </c:when> 
+                 
+                 </c:choose>
+                  
                 </div>
               </header>
+            
+           
             <ui:insert name="top"></ui:insert>
         </div>
 
@@ -52,21 +229,15 @@
             <ui:insert name="bottom"></ui:insert>
         </div>
        </div>
-        
         <!--Import jQuery before materialize.js-->
-      <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <!--script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script-->
       <script type="text/javascript" src="resources/js/materialize.js"></script>
-      <script type="text/javascript" src="resources/js/material.min.js"></script>
-      
-      <script>
-          
-        $(document).ready(function(){
-           //$('ul.tabs').tabs();
-         });
-
-      </script>
+      <script type="text/javascript" src="resources/js/material.min.js"></script>   
+        
     </h:body>
-
+    
+     
+    
 </html>
 
 

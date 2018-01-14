@@ -68,6 +68,12 @@ public class Stock implements Serializable {
         this.usuariorepuso = usuariorepuso;
     }
 
+    public Stock(int cantidad, Date fechareposicion, String usuariorepuso) {
+        this.cantidad = cantidad;
+        this.fechareposicion = fechareposicion;
+        this.usuariorepuso = usuariorepuso;
+    }
+
     public Integer getCodigostock() {
         return codigostock;
     }

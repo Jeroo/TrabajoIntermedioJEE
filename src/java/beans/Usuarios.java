@@ -64,12 +64,14 @@ public class Usuarios implements Serializable {
         this.codigousuario = codigousuario;
     }
 
-    public Usuarios(Integer codigousuario, String nombre, String apellidos, String usuario, String clave) {
+    public Usuarios(Integer codigousuario, String nombre, String apellidos, String usuario, String clave,String tarjeta,Tiposusuarios tipo) {
         this.codigousuario = codigousuario;
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.usuario = usuario;
         this.clave = clave;
+        this.tarjetacredito = tarjeta;
+        this.codigotipousuario = tipo;
     }
 
     public Integer getCodigousuario() {
@@ -150,7 +152,7 @@ public class Usuarios implements Serializable {
 
     @Override
     public String toString() {
-        return usuario;
+        return codigotipousuario.getTipo();
     }
     
 }

@@ -2,14 +2,13 @@
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 template="/facelets/template_principal.xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
 
-    <ui:define name="content">     
-        
-        <h:form id="form">
+    <ui:define name="content">
+           <h:form id="form">
            <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
            <p:dataGrid var="varProductostienda" value="#{prodMB.listaProductostienda}" columns="3"
                rows="6" paginator="true" id="productostiendas"
@@ -74,7 +73,6 @@
                </p:outputPanel>
            </p:dialog>
        </h:form>
-        
     </ui:define>
 
 </ui:composition>
