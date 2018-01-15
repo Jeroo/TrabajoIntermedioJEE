@@ -20,14 +20,14 @@
                 <h:form id="reponerForm">
                     <p:panelGrid columns="2">                            
                         <p:outputLabel value="Producto: " for="select" />
-                        <p:selectOneMenu id="select" value="#{prodMB.codigostock}" required="true" requiredMessage="No se admiten nulos en el producto" >
-                            <f:selectItems value="#{prodMB.listaStock}" />
+                        <p:selectOneMenu id="select" value="#{prodMB.codigoProducto}" required="true" requiredMessage="No se admiten nulos en el producto" >
+                            <f:selectItems value="#{prodMB.listaProductostienda}" />
                         </p:selectOneMenu>
                         <p:outputLabel  for="cantidad" value="Cantidad:" />
                         <p:inputText id="cantidad" value="#{prodMB.cantidad}" title="cantidad" required="true" requiredMessage="No se admiten nulos en la cantidad"/>
                     </p:panelGrid>
                     <p:separator />
-                    <p:commandButton value="Enviar" action="#{prodMB.reponeStock}" update="select"/>
+                    <p:commandButton value="Enviar" action="#{prodMB.reponeStock()}" update="select"/>
                 </h:form>
             </ui:define>
 

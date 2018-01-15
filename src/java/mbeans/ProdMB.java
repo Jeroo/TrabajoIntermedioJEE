@@ -25,7 +25,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -519,14 +525,23 @@ public class ProdMB {
         try {
             
             //comprobamos que no existe
-            Stock st = null;
-            st = stockFacade.find(codigostock);            
-            if (st != null) {
-                stockFacade.edit(st);
+            List<Stock> st = null;
+            productostienda = productostiendaFacade.find(codigoProducto);
+            st = stockFacade.getStockPorProducto(productostienda);            
+            if (st.size() > 0) {
+                Calendar calendar = Calendar.getInstance();   
+                SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd"); 
+                String date = calendar.getTime().getYear()+"-"+calendar.getTime().getMonth()+"-"+calendar.getTime().getDay();
+                Date dateCreated = formater.parse(date); 
+                objStock = st.get(0);
+                objStock.setCantidad(objStock.getCantidad()+cantidad);
+                objStock.setFechareposicion(dateCreated);
+                objStock.setUsuariorepuso(usuario);                
+                stockFacade.edit(objStock);
                 FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Reposición corresta"));
                 listaStock = null;
             } else {
-                FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "No existe el producto en stock."));
+                FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "No existe el producto en stock."+codigoProducto));
             }
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Reposición de producto incorrecta: " + e.toString()));
