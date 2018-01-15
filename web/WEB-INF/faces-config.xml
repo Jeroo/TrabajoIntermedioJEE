@@ -44,5 +44,18 @@
             <to-view-id>/facelets/adminPages/admin.xhtml</to-view-id>
         </navigation-case>
     </navigation-rule>
+    
+    <navigation-rule>
+            <from-view-id>/facelets/adminPages/admin.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>Clientes</from-outcome>
+            <to-view-id>/index.xhtml</to-view-id>
+        </navigation-case>
+        
+         <navigation-case>
+            <from-outcome>Administrador</from-outcome>
+            <to-view-id>/facelets/adminPages/admin.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule>
 
 </faces-config>

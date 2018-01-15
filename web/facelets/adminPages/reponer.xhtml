@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template_principal.xhtml">
+
+             <ui:define name="content">
+                <p:menubar>
+                    <p:menuitem id="volver" value="Volver" outcome="/facelets/adminPages/admin.xhtml" icon="ui-icon-arrowreturn-1-w"/>
+                </p:menubar>
+                <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
+                <h2>Reposición de Productos</h2>
+                <p>Selecciona el producto a reponer:</p>
+                <h:form id="reponerForm">
+                    <p:panelGrid columns="2">                            
+                        <p:outputLabel value="Producto: " for="select" />
+                        <p:selectOneMenu id="select" value="#{prodMB.codigostock}" required="true" requiredMessage="No se admiten nulos en el producto" >
+                            <f:selectItems value="#{prodMB.listaStock}" />
+                        </p:selectOneMenu>
+                        <p:outputLabel  for="cantidad" value="Cantidad:" />
+                        <p:inputText id="cantidad" value="#{prodMB.cantidad}" title="cantidad" required="true" requiredMessage="No se admiten nulos en la cantidad"/>
+                    </p:panelGrid>
+                    <p:separator />
+                    <p:commandButton value="Enviar" action="#{prodMB.reponeStock}" update="select"/>
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

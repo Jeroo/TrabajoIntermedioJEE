@@ -45,7 +45,7 @@
                  
                   </a>                 
                         
-                      <p:dialog modal="true" header="Carrito" widgetVar="dlg5" showEffect="explode" hideEffect="bounce" height="450">                            
+                  <p:dialog modal="true" header="Carrito" widgetVar="dlg5" showEffect="explode" hideEffect="bounce" height="450">                            
                         
                            <p></p>
                            <p></p>
@@ -136,8 +136,8 @@
                     </c:when>
                    
                     <c:when test="#{empty sessionScope.user}"> 
-                       <a href="#features" class="mdl-layout__tab" onclick="PF('dlg3').show();">Log In</a>
-                        <a href="#features" class="mdl-layout__tab" onclick="PF('dlg4').show();">Registrarse</a>
+                      <a href="#features" class="mdl-layout__tab" onclick="PF('dlg3').show();">Log In</a>
+                      <a href="#features" class="mdl-layout__tab" onclick="PF('dlg4').show();">Registrarse</a>
                     
                         
                       <p:dialog modal="true" header="Log In" widgetVar="dlg3" showEffect="explode" hideEffect="bounce" height="650">                            
@@ -210,7 +210,15 @@
                                           background-color: white
                                           " oncomplete="location.reload();"/> 
                     </c:when> 
-                 
+                      
+                      
+                  
+                
+                 </c:choose>
+                 <c:choose>
+                       <c:when test="#{sessionScope.tipo == 'Administrador'}">
+                           <h:link value="Administración" class="mdl-layout__tab" outcome="/facelets/adminPages/admin.xhtml" />
+                        </c:when> 
                  </c:choose>
                   
                 </div>

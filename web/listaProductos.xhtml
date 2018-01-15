@@ -27,7 +27,7 @@
                        <p:commandLink update=":form:prodDetail" oncomplete="PF('prodDialog').show()" title="Ver Detalles">
                            <center><p:graphicImage url="resources/images/productos/#{varProductostienda.codigoproducto}.jpg" width="200" height="119" style="text-align: center"/></center>
 
-                           <h:outputText styleClass="ui-icon ui-icon-search" style="margin:0 auto;" />
+                           <h:outputText styleClass="ui-icon ui-icon-circle-zoomin" style="margin:0 auto;" />
                            <f:setPropertyActionListener value="#{varProductostienda}" target="#{prodMB.productostienda}" />
                        </p:commandLink>
                        <c:choose>
@@ -54,7 +54,8 @@
                <p:outputPanel id="prodDetail" style="text-align:center;">
                    <p:panelGrid  columns="2" rendered="#{not empty prodMB.productostienda}" columnClasses="label,value">
                        <f:facet name="header">
-                          <center><p:graphicImage url="resources/images/productos/#{prodMB.productostienda.codigoproducto}.jpg" width="200" height="119" style="text-align: center"/></center>
+                          <center><p:graphicImage url="resources/images/productos/#{prodMB.productostienda.codigoproducto}.jpg" width="200" height="119" style="text-align: center"/>
+                          </center>
 
                        </f:facet>
 

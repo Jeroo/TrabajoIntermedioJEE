@@ -18,6 +18,13 @@ import beans.UsuariosFacade;
 import beans.Ventas;
 import beans.VentasFacade;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,8 +35,16 @@ import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
+import javax.persistence.criteria.Path;
+import javax.servlet.ServletContext;
+import static javax.servlet.SessionTrackingMode.URL;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.net.whois.WhoisClient;
 import org.primefaces.event.RowEditEvent;
+
 
 
 /**
@@ -83,8 +98,12 @@ public class ProdMB {
     private List<Productospool> listaProductospool;
     private List<Ventas> listaVentas;
     private List<Usuarios> listaUsuarios;
+    private List<Stock> listaStock;
+
+   
     
     // Propiedades de cada objeto a utilizar
+    private Part file;
     private int codigousuario;  
     private String nombreUsuario;   
     private String apellidos; 
@@ -105,14 +124,53 @@ public class ProdMB {
     private int cantidadCarrito = 0;
 
     
+
+    public Part getFile() {
+        return file;
+    }
+
+    public void setFile(Part file) {
+        this.file = file;
+    }
+    
+    public void upload() throws IOException {
+        if(file != null) {
+            WhoisClient whois;
+            FacesContext context = FacesContext.getCurrentInstance();
+            ServletContext scontext = (ServletContext)context.getExternalContext().getContext();
+            String rootpath = scontext.getRealPath("/");
+            File fileImage=new File(rootpath+"resources"+File.separator+"images"+File.separator+"productos");
+            Path folder = (Path) Paths.get(rootpath+"resources"+File.separator+"images"+File.separator+"productos");
+            String filename = FilenameUtils.getBaseName(file.getName()); 
+            String extension = FilenameUtils.getExtension(file.getName());
+            //FilenameUtils.(folder, filename);
+            //Path fileUp = Files.createTempFile(folder, codigoProducto, "."+extension);
+            
+            //file.write(rootpath+"resources"+File.separator+"images"+File.separator+"productos"+getFilename(file));
+            FacesMessage message = new FacesMessage(rootpath);
+            FacesContext.getCurrentInstance().addMessage(null, message);
+        }
+    }
+
+    private static String getFilename(Part part) {
+        for (String cd : part.getHeader("content-disposition").split(";")) {
+            if (cd.trim().startsWith("filename")) {
+                String filename = cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
+                return filename.substring(filename.lastIndexOf('/') + 1).substring(filename.lastIndexOf('\\') + 1); // MSIE fix.
+            }
+        }
+        return null;
+    }
+    
+    
+    
     public Stock getObjStock() {
         return objStock;
     }
 
     public StockFacade getStockFacade() {
         return stockFacade;
-    }
-    
+    }    
     
 
     public void setObjStock(Stock objStock) {
@@ -307,6 +365,7 @@ public class ProdMB {
 
                 page = tipo;
                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("user", usuario);
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("tipo", tipo);
                 //String username = (String) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");
                 
             } else {
@@ -426,6 +485,18 @@ public class ProdMB {
         this.listaProductostienda = listaProductostienda;
     }
     
+     public List<Stock> getListaStock() {
+         
+         if (listaStock == null) {
+           listaStock = stockFacade.findAll();
+        }
+        return listaStock;
+    }
+
+    public void setListaStock(List<Stock> listaStock) {
+        this.listaStock = listaStock;
+    }
+    
      public int getCantidadStock(Productostienda producto) { 
          
        
@@ -441,6 +512,26 @@ public class ProdMB {
          }
         
      }
+     
+     
+    public void reponeStock() { 
+        
+        try {
+            
+            //comprobamos que no existe
+            Stock st = null;
+            st = stockFacade.find(codigostock);            
+            if (st != null) {
+                stockFacade.edit(st);
+                FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Reposición corresta"));
+                listaStock = null;
+            } else {
+                FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "No existe el producto en stock."));
+            }
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Reposición de producto incorrecta: " + e.toString()));
+        }        
+    }
     
      public void altaProducto() {               
                  
@@ -494,21 +585,24 @@ public class ProdMB {
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("menA", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "Alta de producto incorrecta: " + e.toString()));
         }
-    }
+    }   
+   
      
      
     //edición y guardado de la modificación de una fila
     public void onRowEdit(RowEditEvent event) {
-        productospool = (Productospool) event.getObject();          
-        productospoolFacade.edit(productospool);
-        FacesMessage msg = new FacesMessage("Usuario modificado:", productospool.getNombre());
+        
+        productostienda = (Productostienda) event.getObject();          
+        productostiendaFacade.edit(productostienda);
+        productospoolFacade.edit(productostienda.getProductospool());
+        FacesMessage msg = new FacesMessage("Producto modificado:", productostienda.getProductospool().getNombre());
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
 
     //edición y cancelación de la modificación de una fila
     public void onRowCancel(RowEditEvent event) {
-        productospool = (Productospool) event.getObject();
-        FacesMessage msg = new FacesMessage("Modificación cancelada", productospool.getNombre());
+        productostienda = (Productostienda) event.getObject();
+        FacesMessage msg = new FacesMessage("Modificación cancelada", productostienda.getProductospool().getNombre());
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
     
