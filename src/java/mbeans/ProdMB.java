@@ -18,6 +18,7 @@ import beans.UsuariosFacade;
 import beans.Ventas;
 import beans.VentasFacade;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,6 +42,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
+import javax.faces.event.PhaseId;
+import javax.imageio.ImageIO;
 import javax.persistence.criteria.Path;
 import javax.servlet.ServletContext;
 import static javax.servlet.SessionTrackingMode.URL;
@@ -49,7 +52,9 @@ import javax.servlet.http.Part;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.whois.WhoisClient;
+import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.RowEditEvent;
+import org.primefaces.model.UploadedFile;
 
 
 
@@ -95,6 +100,8 @@ public class ProdMB {
     private Productospool productospool;
     private Ventas ventas;
     private Stock objStock;
+    //Obtenemos la fecha actual para alamcenarla posteriormente
+     Calendar calendar = Calendar.getInstance();
 
   
     
@@ -137,6 +144,42 @@ public class ProdMB {
 
     public void setFile(Part file) {
         this.file = file;
+    }
+    
+    public void handleFileUpload(FileUploadEvent event) throws IOException {
+        
+        
+        codigoProducto = (String) event.getComponent().getAttributes().get("codigo"); // bar
+        if (codigoProducto != null && codigoProducto!= "" && codigoProducto != "P-") {
+                    
+            String path = FacesContext.getCurrentInstance().getExternalContext()
+            .getRealPath("/");
+            SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMddHHmmss");
+            String name = fmt.format(new Date())
+                    + event.getFile().getFileName().substring(
+                          event.getFile().getFileName().lastIndexOf('.'));
+            
+            File file = new File(path + "resources/images/productos/" + codigoProducto+".jpg");
+
+            InputStream is = event.getFile().getInputstream();
+            OutputStream out = new FileOutputStream(file);
+            byte buf[] = new byte[1024];
+            int len;
+            while ((len = is.read(buf)) > 0)
+                out.write(buf, 0, len);
+            is.close();
+            out.close();
+
+            
+            FacesMessage message = new FacesMessage("Succesful", event.getFile().getFileName() + " fue subido");
+            FacesContext.getCurrentInstance().addMessage(null, message);
+             
+        }else{
+        
+            FacesMessage message = new FacesMessage("Error", " no ha indicado el codigo del producto");
+            FacesContext.getCurrentInstance().addMessage(null, message);
+        }
+       
     }
     
     public void upload() throws IOException {
@@ -529,14 +572,11 @@ public class ProdMB {
             productostienda = productostiendaFacade.find(codigoProducto);
             st = stockFacade.getStockPorProducto(productostienda);            
             if (st.size() > 0) {
-                Calendar calendar = Calendar.getInstance();   
-                SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd"); 
-                String date = calendar.getTime().getYear()+"-"+calendar.getTime().getMonth()+"-"+calendar.getTime().getDay();
-                Date dateCreated = formater.parse(date); 
+                usuario = (String)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");               
                 objStock = st.get(0);
                 objStock.setCantidad(objStock.getCantidad()+cantidad);
-                objStock.setFechareposicion(dateCreated);
-                objStock.setUsuariorepuso(usuario);                
+                objStock.setUsuariorepuso(usuario); 
+                objStock.setFechareposicion(calendar.getTime().toString());                               
                 stockFacade.edit(objStock);
                 FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Reposición corresta"));
                 listaStock = null;
@@ -566,7 +606,7 @@ public class ProdMB {
                     Productostienda pt = null;
                     pt = productostiendaFacade.find(codigoProducto);
                     if (pt == null) {
-                        
+                        usuario = (String)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");
                         pt = new Productostienda(codigoProducto, precio);
                         productostiendaFacade.create(pt);
                         
@@ -576,14 +616,14 @@ public class ProdMB {
                         if (st.size() <= 0) {
 
                            st = stockFacade.getUltimoStock();
-                           objst = new Stock(st.get(0).getCodigostock()+1, cantidad, Date.from(Instant.now()), usuario);
+                           objst = new Stock(st.get(0).getCodigostock()+1, cantidad, calendar.getTime().toString(), usuario);
                            stockFacade.create(objst);
 
                         }else{
                           
                            objst = stockFacade.find(st.get(0).getCodigostock());
                            objst.setCantidad(objst.getCantidad()+cantidad);
-                           objst.setFechareposicion(Date.from(Instant.now()));
+                           objst.setFechareposicion(calendar.getTime().toString());
                            objst.setUsuariorepuso(usuario);
                            stockFacade.edit(objst);
                         } 

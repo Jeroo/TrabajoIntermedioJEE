@@ -22,8 +22,10 @@
                  
 
                    <h:panelGrid columns="1" style="width:100%">
-                       <h:outputText value="#{varProductostienda.productospool.descripcion}" /> 
-                      
+                       <center>
+                        <h:outputText value="#{varProductostienda.productospool.descripcion}" /> 
+                        <h:outputText value="Cantidad en Stock (#{prodMB.getCantidadStock(varProductostienda)})" /> 
+                      </center>
                        <p:commandLink update=":form:prodDetail" oncomplete="PF('prodDialog').show()" title="Ver Detalles">
                            <center><p:graphicImage url="resources/images/productos/#{varProductostienda.codigoproducto}.jpg" width="200" height="119" style="text-align: center"/></center>
 

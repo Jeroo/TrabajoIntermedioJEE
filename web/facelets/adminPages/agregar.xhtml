@@ -2,7 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <body>
 
@@ -12,6 +14,49 @@
                 <p:menubar>
                     <p:menuitem id="volver" value="Volver" outcome="/facelets/adminPages/admin.xhtml" icon="ui-icon-arrowreturn-1-w"/>
                 </p:menubar>
+                  <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
+                <h2>Agregar Productos</h2>
+                <p>Complete los campos para agreagr un producto:</p>            
+                
+                <h:form id="reponerForm">
+                    <p:panel id="panel" header="Agregar Producto" style="margin-bottom:10px;">
+                        <h:panelGrid columns="3" cellpadding="5">
+                            <p:outputLabel for="codigoProducto" value="Código Producto:" />
+                            <p:inputText id="codigoProducto" value="P-#{prodMB.codigoProducto}" required="true" label="CodigoProducto" placeholder="P-0000">
+                                <f:validateLength minimum="6" />
+                            </p:inputText>
+                            <p:message for="codigoProducto" />
+
+                            <p:outputLabel for="nombreProducto" value="Nombre del Producto:" />
+                            <p:inputText id="nombreProducto" value="#{prodMB.nombreProducto}"  required="true" size="50" label="Teclado de PC de mesa" placeholder="Ejemplo: Teclado de PC de mesa">
+                                <f:validateLength minimum="3" />
+                            </p:inputText>
+                            <p:message for="nombreProducto" />
+                            
+                            <p:outputLabel for="descripcion" value="Descripción" />
+                            <p:inputText id="descripcion" value="#{prodMB.descripcion}" required="true" size="50" label="Ejemplo: mouse inalambrico" placeholder="Ejemplo: mouse inalambrico"/>
+                            <p:message for="descripcion" />
+                            
+                            <p:outputLabel for="cantidad" value="Cantidad" />
+                            <p:inputText id="cantidad" value="#{prodMB.cantidad}" required="true" size="10" label="Ejemplo: 10" placeholder="Ejemplo: 10"/>
+                            <p:message for="descripcion" />
+                            
+                            <p:outputLabel for="img" value="Imagen del Producto" />
+                            <p:fileUpload id="img" fileUploadListener="#{prodMB.handleFileUpload}" mode="advanced" dragDropSupport="false"
+                                            update="messages" sizeLimit="200000" fileLimit="1" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" >
+                                 <f:attribute name="codigo" value="#{prodMB.codigoproducto}" />
+                            </p:fileUpload>
+                            <p:growl id="messages" showDetail="true" severity="info"/>
+                              
+                        </h:panelGrid>
+                    </p:panel>
+
+                    <p:toolbar>
+                        <f:facet name="left">
+                            <p:commandButton value="Submit" update="panel" actionListener="#{prodMB.altaProducto()}" style="margin-right:20px;" />
+                        </f:facet>
+                    </p:toolbar>
+                </h:form>
             </ui:define>
 
         </ui:composition>

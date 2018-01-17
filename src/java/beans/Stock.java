@@ -42,14 +42,17 @@ public class Stock implements Serializable {
     private Integer codigostock;
     @Basic(optional = false)
     @Column(name = "CANTIDAD")
-    private int cantidad;
-    @Basic(optional = false)
-    @Column(name = "FECHAREPOSICION")
-    @Temporal(TemporalType.DATE)
-    private Date fechareposicion;
+    private int cantidad;    
+    
     @Basic(optional = false)
     @Column(name = "USUARIOREPUSO")
     private String usuariorepuso;
+    
+    
+    @Basic(optional = false)
+    @Column(name = "FECHAREPOSICION")
+    private String fechareposicion;
+    
     @JoinColumn(name = "CODIGOPRODUCTO", referencedColumnName = "CODIGOPRODUCTO")
     @ManyToOne(optional = false)
     private Productostienda codigoproducto;
@@ -61,17 +64,18 @@ public class Stock implements Serializable {
         this.codigostock = codigostock;
     }
 
-    public Stock(Integer codigostock, int cantidad, Date fechareposicion, String usuariorepuso) {
+    public Stock(Integer codigostock, int cantidad,String usuariorepuso, String fechareposicion) {
+       
         this.codigostock = codigostock;
         this.cantidad = cantidad;
+        this.usuariorepuso = usuariorepuso;        
         this.fechareposicion = fechareposicion;
-        this.usuariorepuso = usuariorepuso;
     }
 
-    public Stock(int cantidad, Date fechareposicion, String usuariorepuso) {
+    public Stock(int cantidad,  String usuariorepuso,String fechareposicion) {
         this.cantidad = cantidad;
+        this.usuariorepuso = usuariorepuso;        
         this.fechareposicion = fechareposicion;
-        this.usuariorepuso = usuariorepuso;
     }
 
     public Integer getCodigostock() {
@@ -90,11 +94,11 @@ public class Stock implements Serializable {
         this.cantidad = cantidad;
     }
 
-    public Date getFechareposicion() {
+    public String getFechareposicion() {
         return fechareposicion;
     }
 
-    public void setFechareposicion(Date fechareposicion) {
+    public void setFechareposicion(String fechareposicion) {
         this.fechareposicion = fechareposicion;
     }
 
