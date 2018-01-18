@@ -9,23 +9,29 @@
     <body>
 
         <ui:composition template="./../template_principal.xhtml">
-
             <ui:define name="content">
                 <p:menubar>
                     <p:menuitem id="volver" value="Volver" outcome="/facelets/adminPages/admin.xhtml" icon="ui-icon-arrowreturn-1-w"/>
                 </p:menubar>
-                  <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
+               
                 <h2>Agregar Productos</h2>
-                <p>Complete los campos para agreagr un producto:</p>            
+                <p>Complete los campos para agreagr un producto:</p>  
                 
-                <h:form id="reponerForm">
+                <h:form id="imgForm" enctype="multipart/form-data">
+                    <p:outputLabel for="img" value="Imagen del Producto" />
+                    <p:fileUpload id="img" fileUploadListener="#{prodMB.handleFileUpload}" mode="advanced" dragDropSupport="false"
+                                    update="messages" sizeLimit="200000" fileLimit="1" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" >
+
+                         <f:attribute name="codigo" value="agregar" />
+                    </p:fileUpload>
+                    <p:growl id="messages" showDetail="true" severity="info"/>
+                </h:form>                   
+                            
+                
+                <h:form id="reponerForm" enctype="multipart/form-data">
+                   <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
                     <p:panel id="panel" header="Agregar Producto" style="margin-bottom:10px;">
                         <h:panelGrid columns="3" cellpadding="5">
-                            <p:outputLabel for="codigoProducto" value="Código Producto:" />
-                            <p:inputText id="codigoProducto" value="P-#{prodMB.codigoProducto}" required="true" label="CodigoProducto" placeholder="P-0000">
-                                <f:validateLength minimum="6" />
-                            </p:inputText>
-                            <p:message for="codigoProducto" />
 
                             <p:outputLabel for="nombreProducto" value="Nombre del Producto:" />
                             <p:inputText id="nombreProducto" value="#{prodMB.nombreProducto}"  required="true" size="50" label="Teclado de PC de mesa" placeholder="Ejemplo: Teclado de PC de mesa">
@@ -37,29 +43,26 @@
                             <p:inputText id="descripcion" value="#{prodMB.descripcion}" required="true" size="50" label="Ejemplo: mouse inalambrico" placeholder="Ejemplo: mouse inalambrico"/>
                             <p:message for="descripcion" />
                             
+                            <p:outputLabel for="precio" value="Precio" />
+                            <p:inputText id="precio" value="#{prodMB.precio}" required="true" size="10" label="Ejemplo: 10.00" placeholder="Ejemplo: 10.00"/>
+                            <p:message for="precio" />
+                            
                             <p:outputLabel for="cantidad" value="Cantidad" />
                             <p:inputText id="cantidad" value="#{prodMB.cantidad}" required="true" size="10" label="Ejemplo: 10" placeholder="Ejemplo: 10"/>
-                            <p:message for="descripcion" />
-                            
-                            <p:outputLabel for="img" value="Imagen del Producto" />
-                            <p:fileUpload id="img" fileUploadListener="#{prodMB.handleFileUpload}" mode="advanced" dragDropSupport="false"
-                                            update="messages" sizeLimit="200000" fileLimit="1" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" >
-                                 <f:attribute name="codigo" value="#{prodMB.codigoproducto}" />
-                            </p:fileUpload>
-                            <p:growl id="messages" showDetail="true" severity="info"/>
+                            <p:message for="cantidad" />
                               
                         </h:panelGrid>
                     </p:panel>
 
                     <p:toolbar>
                         <f:facet name="left">
-                            <p:commandButton value="Submit" update="panel" actionListener="#{prodMB.altaProducto()}" style="margin-right:20px;" />
+                            <p:commandButton value="Enviar" update="panel" actionListener="#{prodMB.altaProducto}" style="margin-right:20px;" />
                         </f:facet>
                     </p:toolbar>
                 </h:form>
             </ui:define>
 
         </ui:composition>
-
+    
     </body>
 </html>

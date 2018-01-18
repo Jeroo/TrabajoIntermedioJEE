@@ -101,7 +101,7 @@ public class ProdMB {
     private Ventas ventas;
     private Stock objStock;
     //Obtenemos la fecha actual para alamcenarla posteriormente
-     Calendar calendar = Calendar.getInstance();
+    Calendar calendar = Calendar.getInstance();
 
   
     
@@ -116,7 +116,6 @@ public class ProdMB {
    
     
     // Propiedades de cada objeto a utilizar
-    private Part file;
     private int codigousuario;  
     private String nombreUsuario;   
     private String apellidos; 
@@ -128,89 +127,13 @@ public class ProdMB {
     private String nombre;
     private String descripcion;
     private String img;
-    private boolean ponerTienda = false;
+    private boolean ponerTienda = true;
     private String page = "clientes";
     private double precio;  
     private int codigostock;
     private int cantidad;
     private Date fechareposicion;   
     private int cantidadCarrito = 0;
-
-    
-
-    public Part getFile() {
-        return file;
-    }
-
-    public void setFile(Part file) {
-        this.file = file;
-    }
-    
-    public void handleFileUpload(FileUploadEvent event) throws IOException {
-        
-        
-        codigoProducto = (String) event.getComponent().getAttributes().get("codigo"); // bar
-        if (codigoProducto != null && codigoProducto!= "" && codigoProducto != "P-") {
-                    
-            String path = FacesContext.getCurrentInstance().getExternalContext()
-            .getRealPath("/");
-            SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMddHHmmss");
-            String name = fmt.format(new Date())
-                    + event.getFile().getFileName().substring(
-                          event.getFile().getFileName().lastIndexOf('.'));
-            
-            File file = new File(path + "resources/images/productos/" + codigoProducto+".jpg");
-
-            InputStream is = event.getFile().getInputstream();
-            OutputStream out = new FileOutputStream(file);
-            byte buf[] = new byte[1024];
-            int len;
-            while ((len = is.read(buf)) > 0)
-                out.write(buf, 0, len);
-            is.close();
-            out.close();
-
-            
-            FacesMessage message = new FacesMessage("Succesful", event.getFile().getFileName() + " fue subido");
-            FacesContext.getCurrentInstance().addMessage(null, message);
-             
-        }else{
-        
-            FacesMessage message = new FacesMessage("Error", " no ha indicado el codigo del producto");
-            FacesContext.getCurrentInstance().addMessage(null, message);
-        }
-       
-    }
-    
-    public void upload() throws IOException {
-        if(file != null) {
-            WhoisClient whois;
-            FacesContext context = FacesContext.getCurrentInstance();
-            ServletContext scontext = (ServletContext)context.getExternalContext().getContext();
-            String rootpath = scontext.getRealPath("/");
-            File fileImage=new File(rootpath+"resources"+File.separator+"images"+File.separator+"productos");
-            Path folder = (Path) Paths.get(rootpath+"resources"+File.separator+"images"+File.separator+"productos");
-            String filename = FilenameUtils.getBaseName(file.getName()); 
-            String extension = FilenameUtils.getExtension(file.getName());
-            //FilenameUtils.(folder, filename);
-            //Path fileUp = Files.createTempFile(folder, codigoProducto, "."+extension);
-            
-            //file.write(rootpath+"resources"+File.separator+"images"+File.separator+"productos"+getFilename(file));
-            FacesMessage message = new FacesMessage(rootpath);
-            FacesContext.getCurrentInstance().addMessage(null, message);
-        }
-    }
-
-    private static String getFilename(Part part) {
-        for (String cd : part.getHeader("content-disposition").split(";")) {
-            if (cd.trim().startsWith("filename")) {
-                String filename = cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
-                return filename.substring(filename.lastIndexOf('/') + 1).substring(filename.lastIndexOf('\\') + 1); // MSIE fix.
-            }
-        }
-        return null;
-    }
-    
     
     
     public Stock getObjStock() {
@@ -588,57 +511,177 @@ public class ProdMB {
         }        
     }
     
+    /** En este metodo guardamos la imagen que se muestra cada producto
+       * @author  Salvador Cuevas
+       * @version 1.0
+       * @param event captura el evento del FileUpload que tiene el archivo tipo imagen para su tratamiento
+     * @throws java.io.IOException
+       * @since   18-01-2018
+    */    
+    public void handleFileUpload(FileUploadEvent event) throws IOException {
+        
+        /** 
+         * Capturamos el codigo del producto o el label que identifica donde esta el control             
+         */        
+        codigoProducto = (String) event.getComponent().getAttributes().get("codigo"); 
+        if (codigoProducto != null && !"".equals(codigoProducto) && !"P-".equals(codigoProducto)) {
+            
+            // verificamos si el label indica que no esta en el listado de los productos la imagen a agregar
+            
+            if ("agregar".equals(codigoProducto)) {
+                
+                List<Productospool> p = null;
+                p = productospoolFacade.getUltimoProducto();
+                Productospool pp = new Productospool();
+                pp = p.get(p.size() -1);
+                
+                codigoProducto = pp.getCodigoproducto();
+                if (codigoProducto != null && !codigoProducto.isEmpty()) {
+                    
+                   // LLamamos el metodo que incrementa en 1 el codigo del producto
+                    codigoProducto = incrementarCodigoProducto(codigoProducto);
+                    
+                }else {
+                    
+                   codigoProducto = "P-0001";
+                  
+                }
+                
+            }
+                
+            if (!"agregar".equals(codigoProducto)) {
+                
+                String path = FacesContext.getCurrentInstance().getExternalContext()
+                .getRealPath("/");
+                SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMddHHmmss");
+                String name = fmt.format(new Date())
+                        + event.getFile().getFileName().substring(
+                              event.getFile().getFileName().lastIndexOf('.'));
+
+                File file = new File(path + "resources/images/productos/" + codigoProducto+".jpg");
+
+                InputStream is = event.getFile().getInputstream();
+                OutputStream out = new FileOutputStream(file);
+                byte buf[] = new byte[1024];
+                int len;
+                while ((len = is.read(buf)) > 0)
+                    out.write(buf, 0, len);
+                is.close();
+                out.close();
+
+
+                FacesMessage message = new FacesMessage("Succesful", event.getFile().getFileName() + " fue subido");
+                FacesContext.getCurrentInstance().addMessage(null, message);
+                
+            }else{
+            
+                 FacesMessage message = new FacesMessage("Error", " no ha indicado el codigo del producto");
+                 FacesContext.getCurrentInstance().addMessage(null, message);
+            }
+             
+        }else{
+        
+            FacesMessage message = new FacesMessage("Error", " no ha indicado el codigo del producto");
+            FacesContext.getCurrentInstance().addMessage(null, message);
+        }
+       
+    }
+    
+    public String incrementarCodigoProducto(String codigo){
+    
+    
+        String[] parts = codigo.split("-");
+        int incrementarCodigoProducto  = Integer.parseInt(parts[1]);
+        incrementarCodigoProducto = incrementarCodigoProducto + 1;
+
+        switch (String.valueOf(incrementarCodigoProducto).length()) {
+            case 1:
+                codigo = "P-000" + incrementarCodigoProducto;
+                break;
+            case 2:
+                codigo = "P-00" + incrementarCodigoProducto;
+                break;
+            case 3:
+                codigo = "P-0" + incrementarCodigoProducto;
+                break;
+            case 4:
+                codigo = String.valueOf(incrementarCodigoProducto);
+                break;
+            default:
+                break;
+        }
+        
+        return codigo;
+    }
+    
      public void altaProducto() {               
                  
          try {
              
             //comprobamos que no existe
-            Productospool p = null;
-            p = productospoolFacade.find(codigoProducto);
-            
-            if (p == null) {
-                
-                p = new Productospool(codigoProducto,nombreProducto, descripcion, img);
-                productospoolFacade.create(p);        
-                
-                if (ponerTienda) {   
-                    
-                    Productostienda pt = null;
-                    pt = productostiendaFacade.find(codigoProducto);
-                    if (pt == null) {
-                        usuario = (String)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");
-                        pt = new Productostienda(codigoProducto, precio);
-                        productostiendaFacade.create(pt);
-                        
-                        List<Stock> st = null;
-                        Stock objst = null;
-                        st = stockFacade.getStockPorProducto(pt);
-                        if (st.size() <= 0) {
+            Productospool p = null;                
+            List<Productospool> lpp = null;
+            lpp = productospoolFacade.getUltimoProducto();
+            p = new Productospool();
+            p = lpp.get(lpp.size() -1);
+            codigoProducto = p.getCodigoproducto();
 
-                           st = stockFacade.getUltimoStock();
-                           objst = new Stock(st.get(0).getCodigostock()+1, cantidad, calendar.getTime().toString(), usuario);
-                           stockFacade.create(objst);
+            if (codigoProducto != null && !codigoProducto.isEmpty()) {
 
-                        }else{
-                          
-                           objst = stockFacade.find(st.get(0).getCodigostock());
-                           objst.setCantidad(objst.getCantidad()+cantidad);
-                           objst.setFechareposicion(calendar.getTime().toString());
-                           objst.setUsuariorepuso(usuario);
-                           stockFacade.edit(objst);
-                        } 
-                        
-                    }                   
-                
-               }                   
-                
-                FacesContext.getCurrentInstance().addMessage("menA", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Alta de producto correcta."));
-                
-            } else {
-                FacesContext.getCurrentInstance().addMessage("menA", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Ya existe el producto."));
+               // LLamamos el metodo que incrementa en 1 el codigo del producto
+                codigoProducto = incrementarCodigoProducto(codigoProducto);
+
+            }else {
+
+               codigoProducto = "P-0001";
+
             }
+
+            p = new Productospool(codigoProducto,nombreProducto, descripcion, "urlImg");
+            productospoolFacade.create(p);        
+
+            if (ponerTienda) {   
+                usuario = (String)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");
+                Productostienda pt = null;
+                pt = productostiendaFacade.find(codigoProducto);
+                if (pt == null) {
+                   
+                    pt = new Productostienda(codigoProducto, precio);
+                    productostiendaFacade.create(pt);                    
+
+                }else {
+                 
+                     pt.setPrecio(precio);
+                     productostiendaFacade.edit(pt);                     
+                    
+                }  
+                
+                List<Stock> st = null;
+                Stock objst = null;
+                st = stockFacade.getStockPorProducto(pt);
+                if (st.size() <= 0) {
+
+                   st = stockFacade.getUltimoStock();
+                   objst = new Stock(st.get(st.size() -1).getCodigostock()+1, cantidad, calendar.getTime().toString(), usuario);
+                   stockFacade.create(objst);
+
+                }else{
+
+                   objst = stockFacade.find(st.get(st.size() -1).getCodigostock());
+                   objst.setCantidad(objst.getCantidad()+cantidad);
+                   objst.setFechareposicion(calendar.getTime().toString());
+                   objst.setUsuariorepuso(usuario);
+                   stockFacade.edit(objst);
+                } 
+
+           }                   
+                
+          FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Alta de producto correcta."));
+           
+                
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("menA", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "Alta de producto incorrecta: " + e.toString()));
+            
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Alta de producto incorrecta: " + e.toString()));
         }
     }   
    
