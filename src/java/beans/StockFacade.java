@@ -31,8 +31,25 @@ public class StockFacade extends AbstractFacade<Stock> {
         return em;
     }
 
+    
     public StockFacade() {
+        
         super(Stock.class);
+    }
+    
+   
+   public void altaProducto(Stock sto) {
+       
+       
+       /*  /*JPQL*/
+        //Query q = em.createQuery("SELECT OBJECT(u) FROM Usuarios AS u WHERE u.nombre LIKE :nomUsr");
+        //q.setParameter("nomUsr", "%"+patronNom+"%");
+        //return q.getResultList();*/
+        
+        em.getTransaction().begin();
+        em.persist(sto);
+        em.getTransaction().commit();
+        em.close();
     }
     
      public List<Stock> getStockPorProducto(Productostienda producto) {

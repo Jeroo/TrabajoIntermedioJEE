@@ -46,6 +46,7 @@ public class Productospool implements Serializable {
     @Basic(optional = false)
     @Column(name = "IMG")
     private String img;
+    
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "productospool")
     private Productostienda productostienda;
 

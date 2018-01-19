@@ -33,11 +33,18 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -641,16 +648,19 @@ public class ProdMB {
             productospoolFacade.create(p);        
 
             if (ponerTienda) {   
+                
                 usuario = (String)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");
                 Productostienda pt = null;
-                pt = productostiendaFacade.find(codigoProducto);
+                pt = productostiendaFacade.find(codigoProducto);          
+               
                 if (pt == null) {
-                   
+                    
                     pt = new Productostienda(codigoProducto, precio);
-                    productostiendaFacade.create(pt);                    
+                    productostiendaFacade.create(pt);                     
 
                 }else {
-                 
+                    
+                     //pt.setCodigoproducto(codigoProducto);
                      pt.setPrecio(precio);
                      productostiendaFacade.edit(pt);                     
                     
@@ -658,11 +668,17 @@ public class ProdMB {
                 
                 List<Stock> st = null;
                 Stock objst = null;
-                st = stockFacade.getStockPorProducto(pt);
-                if (st.size() <= 0) {
 
+                 st = stockFacade.getStockPorProducto(pt);
+                 if (st.size() <= 0) {
+                  
                    st = stockFacade.getUltimoStock();
-                   objst = new Stock(st.get(st.size() -1).getCodigostock()+1, cantidad, calendar.getTime().toString(), usuario);
+                   final Comparator<Stock> comp = (p1, p2) -> Integer.compare( p1.getCodigostock(), p2.getCodigostock());
+                   Stock stock = st.stream()
+                                          .max(comp)
+                                          .get();
+                   objst = new Stock(stock.getCodigostock()+1,cantidad, usuario,calendar.getTime().toString());
+                   objst.setCodigoproducto(pt);
                    stockFacade.create(objst);
 
                 }else{
@@ -672,14 +688,17 @@ public class ProdMB {
                    objst.setFechareposicion(calendar.getTime().toString());
                    objst.setUsuariorepuso(usuario);
                    stockFacade.edit(objst);
+                   
                 } 
+                
+                
 
            }                   
                 
           FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Alta de producto correcta."));
            
                 
-        } catch (Exception e) {
+        } catch (EJBException e) {
             
             FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Alta de producto incorrecta: " + e.toString()));
         }

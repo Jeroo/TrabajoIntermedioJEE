@@ -44,11 +44,13 @@ public class Productostienda implements Serializable {
     private double precio;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "codigoproducto")
     private Collection<Ventas> ventasCollection;
+    
     @JoinColumn(name = "CODIGOPRODUCTO", referencedColumnName = "CODIGOPRODUCTO", insertable = false, updatable = false)
     @OneToOne(optional = false)
     private Productospool productospool;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "codigoproducto")
-    private Collection<Stock> stockCollection;
+    
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "codigoproducto")
+    private Stock stockCollection;
 
     public Productostienda() {
     }
@@ -96,11 +98,11 @@ public class Productostienda implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Stock> getStockCollection() {
+    public Stock getStockCollection() {
         return stockCollection;
     }
 
-    public void setStockCollection(Collection<Stock> stockCollection) {
+    public void setStockCollection(Stock stockCollection) {
         this.stockCollection = stockCollection;
     }
 

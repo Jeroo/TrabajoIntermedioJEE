@@ -8,6 +8,7 @@ package beans;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -15,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -53,8 +55,8 @@ public class Stock implements Serializable {
     @Column(name = "FECHAREPOSICION")
     private String fechareposicion;
     
-    @JoinColumn(name = "CODIGOPRODUCTO", referencedColumnName = "CODIGOPRODUCTO")
-    @ManyToOne(optional = false)
+    @JoinColumn(name = "CODIGOPRODUCTO", updatable = true, insertable = true)
+    @OneToOne(optional = false)
     private Productostienda codigoproducto;
 
     public Stock() {
@@ -64,12 +66,12 @@ public class Stock implements Serializable {
         this.codigostock = codigostock;
     }
 
-    public Stock(Integer codigostock, int cantidad,String usuariorepuso, String fechareposicion) {
-       
+    public Stock(Integer codigostock,int cantidad,String usuariorepuso,String fechareposicion) {
+        
         this.codigostock = codigostock;
         this.cantidad = cantidad;
-        this.usuariorepuso = usuariorepuso;        
-        this.fechareposicion = fechareposicion;
+        this.usuariorepuso = usuariorepuso;
+       this.fechareposicion = fechareposicion;
     }
 
     public Stock(int cantidad,  String usuariorepuso,String fechareposicion) {
