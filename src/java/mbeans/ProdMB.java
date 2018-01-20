@@ -621,6 +621,112 @@ public class ProdMB {
         return codigo;
     }
     
+    
+    public void handleChange(){  
+        
+        if (codigoProducto != null) {
+            
+            productospool = productospoolFacade.find(codigoProducto);
+            productostienda = productostiendaFacade.find(codigoProducto);
+            
+            nombreProducto =  productospool.getNombre();
+            descripcion =  productospool.getDescripcion();
+            precio = productostienda.getPrecio();
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("productospool", productospool);
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("productostienda", productostienda);
+          
+            
+            try {
+                objStock = stockFacade.getStockPorProducto(productostienda).get(0);
+                cantidad = stockFacade.getStockPorProducto(productostienda) != null ? stockFacade.getStockPorProducto(productostienda).get(0).getCantidad() : 0;
+                
+                 
+                  FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("objStock", objStock);
+                  
+            } catch (Exception e) {
+            
+            }
+            
+            
+        }
+         
+   }
+    
+     public void borrarProducto() { 
+      
+      try
+        {
+          productospool = (Productospool)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("productospool");
+          productostienda = (Productostienda)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("productostienda");
+          objStock = (Stock)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("objStock");
+            
+          stockFacade.remove(objStock);          
+          productostiendaFacade.remove(productostienda);
+          productospoolFacade.remove(productospool);          
+          
+          FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Fue eliminado el producto"+codigoProducto+"-"+productospool.getNombre()+" correctamente."));
+           
+                
+        } catch (EJBException e) {
+            
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "No se pudo eliminar el producto. Error: " + e.toString()));
+        }
+     
+     }
+    
+     public void modificarProducto() { 
+         
+         try {
+                
+                Productospool p = productospoolFacade.find(codigoProducto);
+                p.setDescripcion(descripcion);
+                p.setImg("urlImg");
+                p.setNombre(nombreProducto);
+                p.setProductostienda(productostienda);
+                productospoolFacade.edit(p); 
+                
+                Productostienda pt = productostiendaFacade.find(p.getCodigoproducto());
+                pt.setPrecio(precio);                
+                productostiendaFacade.edit(pt);
+                
+                List<Stock> st = stockFacade.getStockPorProducto(pt);
+                Stock stk = null;
+                if (st.size() > 0) {
+                    
+                   usuario = (String)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");
+                   stk = stockFacade.find(st.get(0).getCodigostock());
+                   stk.setCantidad(cantidad);
+                   stk.setFechareposicion(calendar.getTime().toString());
+                   stk.setUsuariorepuso(usuario);
+                   stockFacade.edit(stk);
+                    
+                 
+                }else {
+                
+                   st = stockFacade.getUltimoStock();
+                   final Comparator<Stock> comp = (p1, p2) -> Integer.compare( p1.getCodigostock(), p2.getCodigostock());
+                   Stock stock = st.stream()
+                                          .max(comp)
+                                          .get();
+                   stk = new Stock(stock.getCodigostock()+1,cantidad, usuario,calendar.getTime().toString());
+                   stk.setCodigoproducto(pt);
+                   stockFacade.create(stk);
+                
+                }              
+                
+                
+                
+          FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "modificación del producto"+codigoProducto+"-"+nombreProducto+" correcta."));
+           
+                
+        } catch (EJBException e) {
+            
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "modificación del producto incorrecta: " + e.toString()));
+        }
+       
+         
+     }
+    
      public void altaProducto() {               
                  
          try {
@@ -689,8 +795,7 @@ public class ProdMB {
                    objst.setUsuariorepuso(usuario);
                    stockFacade.edit(objst);
                    
-                } 
-                
+                }              
                 
 
            }                   
@@ -702,7 +807,7 @@ public class ProdMB {
             
             FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Alta de producto incorrecta: " + e.toString()));
         }
-    }   
+    }  
    
      
      

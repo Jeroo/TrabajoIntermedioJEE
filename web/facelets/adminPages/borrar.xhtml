@@ -2,7 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <body>
 
@@ -11,7 +13,54 @@
             <ui:define name="content">
                  <p:menubar>
                     <p:menuitem id="volver" value="Volver" outcome="/facelets/adminPages/admin.xhtml" icon="ui-icon-arrowreturn-1-w"/>
-                </p:menubar>
+                </p:menubar>      
+                            
+                
+                <h:form id="borrarForm" enctype="multipart/form-data">
+                    
+                   <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
+                   
+                    <p:panel id="panel" header="Borrar Productos" style="margin-bottom:10px;">
+                        
+                            <p:panel id="panelSelect" header="Seleccione el Producto a borrar" style="margin-bottom:10px;">
+                            <p:outputLabel value="Código del Producto:  " for="select" style="margin-right: 0.3%"/>
+                            <p:selectOneMenu id="select" value="#{prodMB.codigoProducto}" required="true" requiredMessage="No se admiten nulos en el producto" 
+                                             style="margin-bottom: 1%" 
+                                             valueChangeListener="#{prodMB.handleChange}"
+                                             >
+                                 <p:ajax listener="#{prodMB.handleChange}" update="borrarForm" />
+                                 <f:selectItem     itemLabel="Seleccione un producto" itemValue=""
+                                                  noSelectionOption="true" />
+                                 <f:selectItems value="#{prodMB.listaProductostienda}"                                             
+                                                />
+                            </p:selectOneMenu>
+                            </p:panel>
+                        <p:outputPanel id="prodDetail" style="text-align:left;">
+                            <h:panelGrid columns="2" cellpadding="5" columnClasses="label,value">                        
+
+                                <p:outputLabel value="Nombre del Producto:" />
+                                <h:outputText value="#{prodMB.nombreProducto}" />
+
+                                <p:outputLabel value="Descripción:" />
+                                <h:outputText value="#{prodMB.descripcion}" />
+
+                                <p:outputLabel value="Precio" />
+                                <h:outputText value="#{prodMB.precio}" />
+
+                                <p:outputLabel value="cantidad" />
+                                <h:outputText value="#{prodMB.cantidad}" />
+                              
+                            </h:panelGrid>
+                        </p:outputPanel>
+                    </p:panel>
+
+                    <p:toolbar>
+                        <f:facet name="left">
+                            <p:commandButton value="Enviar" update="panel" actionListener="#{prodMB.borrarProducto}" style="margin-right:20px;" />
+                        </f:facet>
+                    </p:toolbar>
+                </h:form>
+                
             </ui:define>
 
         </ui:composition>
