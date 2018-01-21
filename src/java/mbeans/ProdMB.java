@@ -397,6 +397,11 @@ public class ProdMB {
     }
 
     public List<Productospool> getListaProductospool() {
+        
+        if (listaProductospool == null) {
+            
+           listaProductospool = productospoolFacade.findAll();
+        }
         return listaProductospool;
     }
 
