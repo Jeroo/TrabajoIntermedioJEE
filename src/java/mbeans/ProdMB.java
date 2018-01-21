@@ -28,15 +28,19 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,6 +54,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
+import javax.faces.event.ValueChangeEvent;
 import javax.imageio.ImageIO;
 import javax.persistence.criteria.Path;
 import javax.servlet.ServletContext;
@@ -61,7 +66,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.whois.WhoisClient;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.RowEditEvent;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.UploadedFile;
+import org.uah.viewmodels.OrdenCarrito;
 
 
 
@@ -96,6 +104,8 @@ public class ProdMB {
      * Creates a new instance of ProdMB
      */
     public ProdMB() {
+        
+       
     }
     
     
@@ -107,6 +117,7 @@ public class ProdMB {
     private Productospool productospool;
     private Ventas ventas;
     private Stock objStock;
+    private OrdenCarrito objOrdenCarrito;
     //Obtenemos la fecha actual para alamcenarla posteriormente
     Calendar calendar = Calendar.getInstance();
 
@@ -119,6 +130,10 @@ public class ProdMB {
     private List<Ventas> listaVentas;
     private List<Usuarios> listaUsuarios;
     private List<Stock> listaStock;
+    private List<OrdenCarrito> listaOrdenCarrito;
+    private List<OrdenCarrito> listaOrdenCarritoSeleccionar;
+    private List<String> listaCantidad;
+   
 
    
     
@@ -138,10 +153,74 @@ public class ProdMB {
     private String page = "clientes";
     private double precio;  
     private int codigostock;
-    private int cantidad;
+    private int cantidad;    
+    private String cantidadSelect; 
     private Date fechareposicion;   
     private int cantidadCarrito = 0;
+
+    public List<OrdenCarrito> getListaOrdenCarritoSeleccionar() {
+        return listaOrdenCarritoSeleccionar;
+    }
+
+    public void setListaOrdenCarritoSeleccionar(List<OrdenCarrito> listaOrdenCarritoSeleccionar) {
+        this.listaOrdenCarritoSeleccionar = listaOrdenCarritoSeleccionar;
+    }
     
+    
+    
+
+    public String getCantidadSelect() {
+        return cantidadSelect;
+    }
+
+    public void setCantidadSelect(String cantidadSelect) {
+        this.cantidadSelect = cantidadSelect;
+    }
+    
+    
+
+    public OrdenCarrito getObjOrdenCarrito() {
+        return objOrdenCarrito;
+    }
+
+    public void setObjOrdenCarrito(OrdenCarrito objOrdenCarrito) {
+        this.objOrdenCarrito = objOrdenCarrito;
+    }
+
+    public List<String> getListaCantidad() {
+        return listaCantidad;
+    }
+
+    public void setListaCantidad(List<String> listaCantidad) {
+        this.listaCantidad = listaCantidad;
+    }
+    
+    
+    
+    //Here
+    public List<OrdenCarrito> getListaOrdenCarrito() {
+                
+        if (listaOrdenCarrito == null) {
+            
+            listaOrdenCarrito = (List<OrdenCarrito>)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaOrdenCarrito");
+            
+            return listaOrdenCarrito;
+        }
+       
+        return listaOrdenCarrito;
+    }
+
+    public void setListaOrdenCarrito(List<OrdenCarrito> listaOrdenCarrito) {
+        this.listaOrdenCarrito = listaOrdenCarrito;
+    }
+
+    public int getCantidadCarrito() {
+        return cantidadCarrito;
+    }
+
+    public void setCantidadCarrito(int cantidadCarrito) {
+        this.cantidadCarrito = cantidadCarrito;
+    }
     
     public Stock getObjStock() {
         return objStock;
@@ -323,7 +402,71 @@ public class ProdMB {
 
     public void setListaProductospool(List<Productospool> listaProductospool) {
         this.listaProductospool = listaProductospool;
-    }   
+    } 
+    
+       
+  
+
+    public void setPage(String page) {
+        this.page = page;
+    }
+    
+     public String getCodigoProducto() {
+        return codigoProducto;
+    }
+
+    public void setCodigoProducto(String codigoProducto) {
+        this.codigoProducto = codigoProducto;
+    }
+
+   
+    public String getNombreProducto() {
+        return nombreProducto;
+    }
+
+    public Productostienda getProductostienda() {
+        return productostienda;
+    }
+
+    public void setProductostienda(Productostienda productostienda) {
+        this.productostienda = productostienda;
+    }
+
+    public void setNombreProducto(String nombreProducto) {
+        this.nombreProducto = nombreProducto;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public List<Productostienda> getListaProductostienda() {
+        
+        if (listaProductostienda == null) {
+           listaProductostienda = productostiendaFacade.findAll();
+        }
+        return listaProductostienda;
+    }
+
+    public void setListaProductostienda(List<Productostienda> listaProductostienda) {
+        this.listaProductostienda = listaProductostienda;
+    }
+    
+     public List<Stock> getListaStock() {
+         
+         if (listaStock == null) {
+           listaStock = stockFacade.findAll();
+        }
+        return listaStock;
+    }
+
+    public void setListaStock(List<Stock> listaStock) {
+        this.listaStock = listaStock;
+    }
 
     /*public String getPage() {
         return page;
@@ -405,78 +548,10 @@ public class ProdMB {
              
         }
         return page;
-    } 
+    }    
     
-       
-    public int agregarAlCarrito() {
-        
-        cantidadCarrito++;       
-        
-        return cantidadCarrito;
-    }
-
-    public void setPage(String page) {
-        this.page = page;
-    }
     
-     public String getCodigoProducto() {
-        return codigoProducto;
-    }
-
-    public void setCodigoProducto(String codigoProducto) {
-        this.codigoProducto = codigoProducto;
-    }
-
-   
-    public String getNombreProducto() {
-        return nombreProducto;
-    }
-
-    public Productostienda getProductostienda() {
-        return productostienda;
-    }
-
-    public void setProductostienda(Productostienda productostienda) {
-        this.productostienda = productostienda;
-    }
-
-    public void setNombreProducto(String nombreProducto) {
-        this.nombreProducto = nombreProducto;
-    }
-
-    public double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    }
-
-    public List<Productostienda> getListaProductostienda() {
-        
-        if (listaProductostienda == null) {
-           listaProductostienda = productostiendaFacade.findAll();
-        }
-        return listaProductostienda;
-    }
-
-    public void setListaProductostienda(List<Productostienda> listaProductostienda) {
-        this.listaProductostienda = listaProductostienda;
-    }
-    
-     public List<Stock> getListaStock() {
-         
-         if (listaStock == null) {
-           listaStock = stockFacade.findAll();
-        }
-        return listaStock;
-    }
-
-    public void setListaStock(List<Stock> listaStock) {
-        this.listaStock = listaStock;
-    }
-    
-     public int getCantidadStock(Productostienda producto) { 
+    public int getCantidadStock(Productostienda producto) { 
          
        
         List<Stock> st = getStockFacade().getStockPorProducto(producto);
@@ -621,8 +696,80 @@ public class ProdMB {
         return codigo;
     }
     
+    public String Comprar(){
+     
+        listaOrdenCarrito = (List<OrdenCarrito>)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaOrdenCarrito");
+        try {
+            List<Stock> st = null;
+            for (OrdenCarrito ordenCarrito : listaOrdenCarrito) {
+            
+                cantidad = ordenCarrito.getCantidad();
+                productostienda = productostiendaFacade.find(ordenCarrito.getCodigoProducto());
+                st = stockFacade.getStockPorProducto(productostienda); 
+
+                if (st.size() > 0) {
+
+                    usuario = (String)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");               
+                    objStock = st.get(0);
+                    objStock.setCantidad(objStock.getCantidad()-cantidad);
+                    //objStock.setUsuariorepuso(usuario); 
+                    //objStock.setFechareposicion(calendar.getTime().toString());                               
+                    stockFacade.edit(objStock);
+                    FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Compra realizada correstamente"));
+                    listaStock = null;                  
+                
+
+                } else {
+                    FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "No existe el producto en stock. "+ordenCarrito.getCodigoProducto()));
+                }           
+           }
+            
+            page = "Clientes";
+        
+            return page;
+           
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Hubo un error al realizar la compra: " + e.toString()));
+        }         
+               
+        return null;
+    }
     
-    public void handleChange(){  
+    public double getTotalCompra(int cantidad, String codigoProducto){
+        
+        double total = 0.0;
+        
+        if (listaOrdenCarrito != null) {
+            cantidadCarrito = listaOrdenCarrito.size();
+            for (OrdenCarrito orden : listaOrdenCarrito) {  
+                 if ( orden.getCodigoProducto().equals(codigoProducto)) {
+
+                     total += cantidad * orden.getPrecio();
+
+                  }else{
+                     
+                     total += orden.getCantidad() * orden.getPrecio();
+
+                 }
+            }  
+            
+        }
+        
+        return total;
+    }
+    
+    
+    public void handleChange(ValueChangeEvent event){  
+        
+
+        String  codigoProductoSelect = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("codigoProductoSelect");
+        Boolean labelVerificarSelect = false;
+        if (codigoProductoSelect != null && !codigoProductoSelect.isEmpty() ) {
+             
+             codigoProducto = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("codigoProductoSelect");
+             labelVerificarSelect = true;
+
+         }
         
         if (codigoProducto != null) {
             
@@ -634,17 +781,41 @@ public class ProdMB {
             precio = productostienda.getPrecio();
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("productospool", productospool);
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("productostienda", productostienda);
-          
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Cambio la cantidad a comprar del producto: "+codigoProducto+"-"+nombreProducto));
+
             
             try {
                 objStock = stockFacade.getStockPorProducto(productostienda).get(0);
-                cantidad = stockFacade.getStockPorProducto(productostienda) != null ? stockFacade.getStockPorProducto(productostienda).get(0).getCantidad() : 0;
+                cantidad = stockFacade.getStockPorProducto(productostienda) != null ? stockFacade.getStockPorProducto(productostienda).get(0).getCantidad() : 0;      
                 
                  
-                  FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("objStock", objStock);
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("objStock", objStock);
                   
             } catch (Exception e) {
+               String error = ""+e;
+            }
             
+            if (labelVerificarSelect) {
+                cantidadSelect = event.getNewValue().toString();
+                cantidad = Integer.parseInt(cantidadSelect);
+                precio = getTotalCompra(cantidad, codigoProducto);
+                
+                listaOrdenCarrito = (List<OrdenCarrito>)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaOrdenCarrito");
+
+                 for (OrdenCarrito orden : listaOrdenCarrito) {                     
+                     
+                     if (orden.getCodigoProducto().equals(codigoProducto)) {
+                        
+                         orden.setCantidad(cantidad);
+                         
+                      }
+                } 
+                 
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaOrdenCarrito", listaOrdenCarrito);
+                
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("cantidad", cantidad);
+                
+                
             }
             
             
@@ -652,7 +823,7 @@ public class ProdMB {
          
    }
     
-     public void borrarProducto() { 
+    public void borrarProducto() { 
       
       try
         {
@@ -674,7 +845,7 @@ public class ProdMB {
      
      }
     
-     public void modificarProducto() { 
+    public void modificarProducto() { 
          
          try {
                 
@@ -727,7 +898,7 @@ public class ProdMB {
          
      }
     
-     public void altaProducto() {               
+    public void altaProducto() {               
                  
          try {
              
@@ -807,7 +978,55 @@ public class ProdMB {
             
             FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Alta de producto incorrecta: " + e.toString()));
         }
-    }  
+    } 
+    
+    public String agregarAlCarrito() {
+        
+          codigoProducto = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("codigoProductoSelect");
+        if (codigoProducto != null) {
+            
+            try {
+                
+                productospool = productospoolFacade.find(codigoProducto);
+                productostienda = productostiendaFacade.find(codigoProducto);
+
+                nombreProducto =  productospool.getNombre();
+                descripcion =  productospool.getDescripcion();
+                precio = productostienda.getPrecio();
+                cantidad = stockFacade.getStockPorProducto(productostienda) != null ? stockFacade.getStockPorProducto(productostienda).get(0).getCantidad() : 0;
+                objStock = stockFacade.getStockPorProducto(productostienda).get(0);
+                OrdenCarrito orden = new OrdenCarrito();
+                listaCantidad = orden.llenarListaCantidad(objStock);
+
+                OrdenCarrito oc = new OrdenCarrito(nombreProducto, codigoProducto, 1, precio);
+                oc.setListCantidad(listaCantidad);                
+                
+                
+                listaOrdenCarrito = (List<OrdenCarrito>)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaOrdenCarrito");
+                if (listaOrdenCarrito == null) {
+                   
+                    listaOrdenCarrito = new ArrayList<OrdenCarrito>();
+                }
+                
+                listaOrdenCarrito.add(oc);           
+                
+                 precio = getTotalCompra(1, "");
+                 
+                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaOrdenCarrito", listaOrdenCarrito);
+                 FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("cantidadCarrito", cantidadCarrito);
+            } catch (Exception e) {
+                String error =  ""+e;
+            }   
+            
+            
+        }
+        
+        page = "Clientes";
+            
+        return page;
+        
+      
+    }
    
      
      
@@ -820,13 +1039,39 @@ public class ProdMB {
         FacesMessage msg = new FacesMessage("Producto modificado:", productostienda.getProductospool().getNombre());
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
-
-    //edición y cancelación de la modificación de una fila
+    
+     //edición y cancelación de la modificación de una fila
     public void onRowCancel(RowEditEvent event) {
         productostienda = (Productostienda) event.getObject();
         FacesMessage msg = new FacesMessage("Modificación cancelada", productostienda.getProductospool().getNombre());
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
+    
+    
+    public void eliminarDelCarrito() {
+        
+        if (listaOrdenCarritoSeleccionar != null && listaOrdenCarritoSeleccionar.size() > 0) {
+            
+           listaOrdenCarrito = (List<OrdenCarrito>)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaOrdenCarrito");
+
+            for (OrdenCarrito ordenCarrito : listaOrdenCarritoSeleccionar) {
+            
+                  listaOrdenCarrito.remove(ordenCarrito);
+             }
+            
+           FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaOrdenCarrito", listaOrdenCarrito);
+           precio = getTotalCompra(1, "");
+           FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Producto(s) eliminado(s) de la lista correctamente"));
+
+        }else {
+        
+          FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Hubo un error al intentar eliminar, es posible que no haya selecionado por lo menos un producto"));
+
+        
+        }
+    }
+
+   
     
     
 }

@@ -41,35 +41,86 @@
                 </div>
                 <div class="mdl-layout__tab-bar mdl-js-ripple-effect mdl-color--primary-dark">
                   <h:link value="Lista Productos" class="mdl-layout__tab is-active" outcome="/index.xhtml" />
-                  <a href="javascript:void(0)" onclick="PF('dlg5').show();" class="mdl-layout__tab">Carrito (#{prodMB.agregarAlCarrito()})  
+                  <a href="javascript:void(0)" onclick="PF('dlg5').show();" class="mdl-layout__tab">Carrito (#{sessionScope.cantidadCarrito})  
                  
                   </a>                 
                         
-                  <p:dialog modal="true" header="Carrito" widgetVar="dlg5" showEffect="explode" hideEffect="bounce" height="450">                            
+                  <p:dialog id="dialogCarrito" modal="true" header="Carrito" widgetVar="dlg5" showEffect="explode" hideEffect="bounce" height="900" width="1200">                            
                         
                            <p></p>
                            <p></p>
-                           <h3>Listado de productos seleccionados</h3>
-                           <h:form>
-                               <p:panel header="Carrito de la Compra">
-                                   <p:panelGrid columns="2">
-                                       <f:facet name="header">
-                                           <p:graphicImage id="usrImg" url="resources/images/usr.jpg"/>
-                                       </f:facet>
-                                       <p:outputLabel for="nom" value="Nombre de usuario"/>
-                                       <p:inputText id="nom" value="#{prodMB.usuario}" size="50" required="true" requiredMessage="No se admiten nulos en el nombre "/>
-                                        <p:outputLabel for="pass" value="Contraseña:"/>
-                                        <p:password id="pass" value="#{prodMB.clave}" size="50" required="true" requiredMessage="No se admiten en la contraseña"/>
-                                        <f:facet name="footer">
-                                            <p:commandButton value="Acceder" action="#{prodMB.getPage}" oncomplete="PF('dlg5').hide();" /> 
-                                       </f:facet>
-                                   </p:panelGrid>
-                               </p:panel>
-                           </h:form>                 
-                       
-                        </p:dialog>
+                           <h4>Listado de productos seleccionados</h4>
+                           <h:form id="carritoForm"> 
+                           <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
+                          
+                           <p:dataTable var="prod" value="#{prodMB.listaOrdenCarrito}" rows="4"
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="5,10,15"  style="margin-bottom:5px"
+                                 selection="#{prodMB.listaOrdenCarritoSeleccionar}" rowKey="#{prod.codigoProducto}"
+                                 id="ListaCarritoCompra"
+                                
+                                 >
+                                <f:facet name="header">
+                                    Listado de Productos
+                                </f:facet>
+                                <!--p:ajax event="rowSelect" listener="#{prodMB.onRowSelect}" update=":carritoForm:msgs" />
+                                <p:ajax event="rowUnselect" listener="#{prodMB.onRowUnselect}" update=":carritoForm:msgs" /-->
+                                 <p:column selectionMode="multiple" style="width:50px;text-align:center"/>                                
+                                 <p:column headerText="Imagen">   
+                                     <p:graphicImage url="/resources/images/productos/#{prod.codigoProducto}.jpg" width="200" height="119" style="text-align: center"/>    
+                                 </p:column>
+                                 <p:column headerText="CODIGO">                            
+                                     <h:outputText value="#{prod.codigoProducto}" />
+                                 </p:column>
+                                 <p:column headerText="NOMBRE">
+                                     <h:outputText value="#{prod.nombreProducto}" />                              
+                                 </p:column>
+                                  <p:column headerText="DESCRICION">
+                                     <h:outputText value="#{prod.nombreProducto}" />                              
+                                 </p:column>
+                                 <p:column headerText="PRECIO">
+                                    <h:outputText value="#{prod.precio}" />                              
+                                 </p:column>
+                                 <p:column headerText="CANTIDAD">
+                                     <p:panel id="panelSelect" style="margin-bottom:10px;">
+                                         <p:selectOneMenu   style="width: 100%" id="select10" value="#{prodMB.cantidadSelect}" 
+                                                            required="true" requiredMessage="No se admiten nulos en el producto"                                                           
+                                                            valueChangeListener="#{prodMB.handleChange}"
+                                                            >                                             
+                                              
+                                                <f:selectItems value="#{prod.listCantidad}"                                             
+                                                               />
+                                                <f:ajax render="panelSelect2"/>
+                                                <p:ajax  event="change" update="panelSelect" />
+                                                <f:param name="codigoProductoSelect" value="#{prod.codigoProducto}" />
+                                           </p:selectOneMenu>
+                                       </p:panel>             
+                                 </p:column>                  
+                                <f:facet name="footer">
+                                    <p:commandButton icon="ui-icon-trash" value="Eliminar" update=":carritoForm"
+                                                    actionListener="#{prodMB.eliminarDelCarrito}" styleClass="ui-priority-primary" />
+                                </f:facet>                          
+                             </p:dataTable>
+                            <p:outputPanel id="panelSelect2" autoUpdate="true">
+                                <p:panelGrid  columns="2" columnClasses="label,value">
+                                    <f:facet name="header" >
+                                        <h5 style="text-align: center;">Detalles de la factura</h5>
+                                    </f:facet>
+                                   
+
+                                    <h:outputText value="Total:" />
+                                    <h:outputText value="$#{prodMB.precio}" />
+                                    
+                                    <f:facet name="footer">
+                                     <p:commandButton value="Comprar" action="#{prodMB.Comprar}" /> 
+                                    </f:facet>
+                                </p:panelGrid>                            
+                             </p:outputPanel>                     
+                           </h:form>                
+                  </p:dialog>
                   
-                  <c:choose>
+                 <c:choose>
                     <c:when test="#{sessionScope.user eq null}">
                         <a href="javascript:void(0)" class="mdl-layout__tab" onclick="PF('dlg3').show();">Log In</a>
                         <a href="javascript:void(0)" class="mdl-layout__tab" onclick="PF('dlg4').show();">Registrarse</a>

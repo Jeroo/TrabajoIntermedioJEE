@@ -42,8 +42,13 @@
 
                         <c:otherwise>                   
 
-                            <f:facet name="footer">                            
-                                  <p:commandButton id="submit" value="Agregar al Carrito" action="#{prodMB.agregarAlCarrito}"></p:commandButton>
+                            <f:facet name="footer">   
+                                <p:commandButton value="Agregar al Carrito" 
+                                                  action="#{prodMB.agregarAlCarrito}"
+                                                 >
+                                    <!--f:setPropertyActionListener target="#{prodMB.codigoProducto}" value="#{varProductostienda.codigoproducto}" /-->
+                                    <f:param name="codigoProductoSelect" value="#{varProductostienda.codigoproducto}" />
+                                </p:commandButton>
                            </f:facet>
                         </c:otherwise>
                      </c:choose>
@@ -61,6 +66,9 @@
 
                        <h:outputText value="Código Producto:" />
                        <h:outputText value="#{prodMB.productostienda.codigoproducto}" />
+                       
+                       <h:outputText value="Nombre:" />
+                       <h:outputText value="#{prodMB.productostienda.productospool.nombre}" />  
 
                        <h:outputText value="Descrición:" />
                        <h:outputText value="#{prodMB.productostienda.productospool.descripcion}" />  
