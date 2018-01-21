@@ -64,8 +64,6 @@
                                 <f:facet name="header">
                                     Listado de Productos
                                 </f:facet>
-                                <!--p:ajax event="rowSelect" listener="#{prodMB.onRowSelect}" update=":carritoForm:msgs" />
-                                <p:ajax event="rowUnselect" listener="#{prodMB.onRowUnselect}" update=":carritoForm:msgs" /-->
                                  <p:column selectionMode="multiple" style="width:50px;text-align:center"/>                                
                                  <p:column headerText="Imagen">   
                                      <p:graphicImage url="/resources/images/productos/#{prod.codigoProducto}.jpg" width="200" height="119" style="text-align: center"/>    
@@ -86,7 +84,7 @@
                                      <p:panel id="panelSelect" style="margin-bottom:10px;">
                                          <p:selectOneMenu   style="width: 100%" id="select10" value="#{prodMB.cantidadSelect}" 
                                                             required="true" requiredMessage="No se admiten nulos en el producto"                                                           
-                                                            valueChangeListener="#{prodMB.handleChange}"
+                                                            valueChangeListener="#{prodMB.handleChangeCarrito}"
                                                             >                                             
                                               
                                                 <f:selectItems value="#{prod.listCantidad}"                                             

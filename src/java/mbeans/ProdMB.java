@@ -474,6 +474,7 @@ public class ProdMB {
     
     public String getPage() {
         listaUsuarios = usuariosFacade.getUsuario(usuario);
+        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("cantidadCarrito", 0);
         if (listaUsuarios.size() <= 0) {
             FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Usuario no encontrado debe registrarse si no tiene una cuenta"));
 
@@ -715,7 +716,7 @@ public class ProdMB {
                     //objStock.setUsuariorepuso(usuario); 
                     //objStock.setFechareposicion(calendar.getTime().toString());                               
                     stockFacade.edit(objStock);
-                    FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Compra realizada correstamente"));
+                    FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Compra del producto codigo: "+productostienda.getCodigoproducto()+" fue realizada correctamente"));
                     listaStock = null;                  
                 
 
@@ -723,6 +724,10 @@ public class ProdMB {
                     FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "No existe el producto en stock. "+ordenCarrito.getCodigoProducto()));
                 }           
            }
+            
+            listaOrdenCarrito = null;
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaOrdenCarrito", null);
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("cantidadCarrito", 0);
             
             page = "Clientes";
         
@@ -759,17 +764,75 @@ public class ProdMB {
     }
     
     
-    public void handleChange(ValueChangeEvent event){  
-        
-
+    public void handleChangeCarrito(ValueChangeEvent event){
+    
         String  codigoProductoSelect = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("codigoProductoSelect");
         Boolean labelVerificarSelect = false;
-        if (codigoProductoSelect != null && !codigoProductoSelect.isEmpty() ) {
+        if (codigoProductoSelect != null) {
              
              codigoProducto = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("codigoProductoSelect");
              labelVerificarSelect = true;
 
          }
+        
+         if (codigoProducto != null) {
+            
+            productospool = productospoolFacade.find(codigoProducto);
+            productostienda = productostiendaFacade.find(codigoProducto);
+            
+            nombreProducto =  productospool.getNombre();
+            descripcion =  productospool.getDescripcion();
+            precio = productostienda.getPrecio();
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("productospool", productospool);
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("productostienda", productostienda);
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Cambio la cantidad a comprar del producto: "+codigoProducto+"-"+nombreProducto));
+
+            
+            try {
+                objStock = stockFacade.getStockPorProducto(productostienda).get(0);
+                cantidad = stockFacade.getStockPorProducto(productostienda) != null ? stockFacade.getStockPorProducto(productostienda).get(0).getCantidad() : 0;      
+                
+                 
+                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("objStock", objStock);
+                  
+            } catch (Exception e) {
+               String error = ""+e;
+            }
+          
+            
+            
+        }
+      
+        if (labelVerificarSelect) {
+
+
+            cantidadSelect = event.getNewValue().toString();
+            cantidad = Integer.parseInt(cantidadSelect);
+            precio = getTotalCompra(cantidad, codigoProducto);
+
+            listaOrdenCarrito = (List<OrdenCarrito>)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaOrdenCarrito");
+
+             for (OrdenCarrito orden : listaOrdenCarrito) {                     
+
+                 if (orden.getCodigoProducto().equals(codigoProducto)) {
+
+                     orden.setCantidad(cantidad);
+
+                  }
+            } 
+
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaOrdenCarrito", listaOrdenCarrito);
+
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("cantidad", cantidad);
+
+
+        }
+    
+    }
+    
+    public void handleChange(){   
+
+       
         
         if (codigoProducto != null) {
             
@@ -794,29 +857,7 @@ public class ProdMB {
             } catch (Exception e) {
                String error = ""+e;
             }
-            
-            if (labelVerificarSelect) {
-                cantidadSelect = event.getNewValue().toString();
-                cantidad = Integer.parseInt(cantidadSelect);
-                precio = getTotalCompra(cantidad, codigoProducto);
-                
-                listaOrdenCarrito = (List<OrdenCarrito>)FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("listaOrdenCarrito");
-
-                 for (OrdenCarrito orden : listaOrdenCarrito) {                     
-                     
-                     if (orden.getCodigoProducto().equals(codigoProducto)) {
-                        
-                         orden.setCantidad(cantidad);
-                         
-                      }
-                } 
-                 
-                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaOrdenCarrito", listaOrdenCarrito);
-                
-                FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("cantidad", cantidad);
-                
-                
-            }
+          
             
             
         }
@@ -1014,6 +1055,7 @@ public class ProdMB {
                  
                  FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaOrdenCarrito", listaOrdenCarrito);
                  FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("cantidadCarrito", cantidadCarrito);
+                 
             } catch (Exception e) {
                 String error =  ""+e;
             }   
@@ -1060,7 +1102,10 @@ public class ProdMB {
              }
             
            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("listaOrdenCarrito", listaOrdenCarrito);
+          
+           
            precio = getTotalCompra(1, "");
+           FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("cantidadCarrito", cantidadCarrito);
            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Producto(s) eliminado(s) de la lista correctamente"));
 
         }else {
@@ -1070,8 +1115,6 @@ public class ProdMB {
         
         }
     }
-
-   
     
     
 }
