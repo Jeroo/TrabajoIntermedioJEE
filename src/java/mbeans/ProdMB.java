@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
@@ -79,7 +80,7 @@ import org.uah.viewmodels.OrdenCarrito;
  */
 @ManagedBean
 @RequestScoped
-public class ProdMB {
+public class ProdMB implements Serializable {
 
     @EJB
     private TiposusuariosFacade tiposusuariosFacade;
@@ -265,6 +266,13 @@ public class ProdMB {
     }
 
     public List<Ventas> getListaVentas() {
+        
+        if (listaVentas == null) {
+            
+            listaVentas = ventasFacade.findAll();
+            
+            return listaVentas;
+        }
         return listaVentas;
     }
 
@@ -721,6 +729,28 @@ public class ProdMB {
                     //objStock.setUsuariorepuso(usuario); 
                     //objStock.setFechareposicion(calendar.getTime().toString());                               
                     stockFacade.edit(objStock);
+                    
+                    Ventas v = null;
+                    List<Ventas> lv = ventasFacade.findAll();
+                    
+                    if (lv.size() > 0) {
+                        
+                         //Guardamos la compra en la tabla ventas
+                        final Comparator<Ventas> comp = (p1, p2) -> Integer.compare( p1.getCodigoventa(), p2.getCodigoventa());
+                        Ventas ventas = lv.stream()
+                                               .max(comp)
+                                               .get();
+                         v = new Ventas(ventas.getCodigoventa()+1, productostienda, cantidad, usuario, calendar.getTime().toString());
+                         
+                         
+                    }else {
+                    
+                         v = new Ventas(1, productostienda, cantidad, usuario, calendar.getTime().toString());
+                    
+                    }
+                    
+                    ventasFacade.create(v);
+                 
                     FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Compra del producto codigo: "+productostienda.getCodigoproducto()+" fue realizada correctamente"));
                     listaStock = null;                  
                 

@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../template_principal.xhtml">
+
+            <ui:define name="content">
+                <p:menubar>
+                    <p:menuitem id="volver" value="Volver" outcome="/facelets/adminPages/admin.xhtml" icon="ui-icon-arrowreturn-1-w"/>
+                </p:menubar>
+               
+                <h2>Reporte de las Ventas</h2>
+                <p>Seleccione una opción para exportar los datos de las ventas</p>  
+                
+                <h:form>
+                    <p:dataTable id="tbl" var="ventas" value="#{prodMB.listaVentas}"
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                                 paginator="true" rows="10" style="margin-bottom:20px">
+
+                        <f:facet name="{Exporters}">
+                            <h:commandLink>
+                                <p:graphicImage url="../../resources/images/excel.png" width="24"/>
+                                <p:dataExporter type="xls" target="tbl" fileName="listaVentas" />
+                            </h:commandLink>
+
+                            <h:commandLink>
+                                <p:graphicImage url="../../resources/images/pdf.png" width="24"/>
+                                <p:dataExporter type="pdf" target="tbl" fileName="listaVentas"/>
+                            </h:commandLink>
+
+                            <h:commandLink>
+                                <p:graphicImage url="../../resources/images/csv.png" width="24"/>
+                                <p:dataExporter type="csv" target="tbl" fileName="listaVentas" />
+                            </h:commandLink>
+
+                            <h:commandLink>
+                                <p:graphicImage url="../../resources/images/xml.png" width="24"/>
+                                <p:dataExporter type="xml" target="tbl" fileName="listaVentas" />
+                            </h:commandLink>
+                        </f:facet>
+
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Código Venta" />
+                            </f:facet>
+                            <h:outputText value="#{ventas.codigoventa}" />
+                        </p:column>
+
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Código Producto"/>
+                            </f:facet>
+                            <h:outputText value="#{ventas.codigoproducto}" />
+                        </p:column>
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Nombre del Producto"/>
+                            </f:facet>
+                            <h:outputText value="#{ventas.codigoproducto.productospool.nombre}" />
+                        </p:column>
+
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Cantidad Vendidas" />
+                            </f:facet>
+                            <h:outputText value="#{ventas.cantidadvendidas}" />
+                        </p:column>                       
+                         <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Precio" />
+                            </f:facet>
+                            <h:outputText value="#{ventas.codigoproducto.precio}" />
+                        </p:column>                       
+                        
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Precio Total Compra" />
+                            </f:facet>
+                            <h:outputText value="#{ventas.codigoproducto.precio * ventas.cantidadvendidas}" />
+                        </p:column>
+                        
+                        <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Usuario comprador" />
+                            </f:facet>
+                              <h:outputText value="#{ventas.usuariocompra}" />
+                        </p:column>
+                        
+                         <p:column>
+                            <f:facet name="header">
+                                <h:outputText value="Fecha Venta" />
+                            </f:facet>
+                             <h:outputText value="#{ventas.fechaventa}" />
+                        </p:column>              
+                        
+                    </p:dataTable>
+                     <h3>Export Page Data Only</h3>
+                    <h:commandLink>
+                        <p:graphicImage name="../../resources/images/excel.png" />
+                        <p:dataExporter type="xls" target="tbl" fileName="cars" pageOnly="true"/>
+                    </h:commandLink>
+
+                    <h:commandLink>
+                        <p:graphicImage name="/demo/images/pdf.png" />
+                        <p:dataExporter type="pdf" target="tbl" fileName="cars" pageOnly="true" />
+                    </h:commandLink>
+
+                    <h:commandLink>
+                        <p:graphicImage name="/demo/images/csv.png" />
+                        <p:dataExporter type="csv" target="tbl" fileName="cars" pageOnly="true" />
+                    </h:commandLink>
+
+                    <h:commandLink>
+                        <p:graphicImage name="/demo/images/xml.png" />
+                        <p:dataExporter type="xml" target="tbl" fileName="cars" pageOnly="true" />
+                    </h:commandLink>
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

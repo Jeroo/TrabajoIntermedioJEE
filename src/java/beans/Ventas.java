@@ -44,9 +44,10 @@ public class Ventas implements Serializable {
     @Column(name = "CANTIDADVENDIDAS")
     private int cantidadvendidas;
     @Basic(optional = false)
+    
     @Column(name = "FECHAVENTA")
-    @Temporal(TemporalType.DATE)
-    private Date fechaventa;
+    private String fechaventa;
+    
     @Basic(optional = false)
     @Column(name = "USUARIOCOMPRA")
     private String usuariocompra;
@@ -61,11 +62,12 @@ public class Ventas implements Serializable {
         this.codigoventa = codigoventa;
     }
 
-    public Ventas(Integer codigoventa, int cantidadvendidas, Date fechaventa, String usuariocompra) {
+    public Ventas(Integer codigoventa,Productostienda codigoproducto, int cantidadvendidas, String usuariocompra, String fechaventa) {
         this.codigoventa = codigoventa;
-        this.cantidadvendidas = cantidadvendidas;
-        this.fechaventa = fechaventa;
+        this.codigoproducto = codigoproducto;
+        this.cantidadvendidas = cantidadvendidas;        
         this.usuariocompra = usuariocompra;
+        this.fechaventa = fechaventa;
     }
 
     public Integer getCodigoventa() {
@@ -84,11 +86,11 @@ public class Ventas implements Serializable {
         this.cantidadvendidas = cantidadvendidas;
     }
 
-    public Date getFechaventa() {
+    public String getFechaventa() {
         return fechaventa;
     }
 
-    public void setFechaventa(Date fechaventa) {
+    public void setFechaventa(String fechaventa) {
         this.fechaventa = fechaventa;
     }
 
