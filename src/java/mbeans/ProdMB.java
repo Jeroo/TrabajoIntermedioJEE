@@ -5,6 +5,7 @@
  */
 package mbeans;
 
+import beans.ProductosProv;
 import beans.Productospool;
 import beans.ProductospoolFacade;
 import beans.Productostienda;
@@ -17,6 +18,9 @@ import beans.Usuarios;
 import beans.UsuariosFacade;
 import beans.Ventas;
 import beans.VentasFacade;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -25,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
@@ -53,6 +58,7 @@ import javax.ejb.EJBException;
 import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
@@ -62,6 +68,7 @@ import javax.servlet.ServletContext;
 import static javax.servlet.SessionTrackingMode.URL;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
+import javax.ws.rs.ClientErrorException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.net.whois.WhoisClient;
@@ -71,6 +78,7 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.UploadedFile;
 import org.uah.viewmodels.OrdenCarrito;
+import proveedores.ClienteProveedores;
 
 
 
@@ -79,7 +87,8 @@ import org.uah.viewmodels.OrdenCarrito;
  * @author scuev
  */
 @ManagedBean
-@RequestScoped
+/*@RequestScoped*/
+@ViewScoped
 public class ProdMB implements Serializable {
 
     @EJB
@@ -100,6 +109,8 @@ public class ProdMB implements Serializable {
     @EJB
     private ProductostiendaFacade productostiendaFacade;
     
+    ClienteProveedores proveedores = new ClienteProveedores();   
+   
 
     /**
      * Creates a new instance of ProdMB
@@ -108,11 +119,12 @@ public class ProdMB implements Serializable {
         
        
     }
-    
+   
     
 
     // Objetos declaración
     private Tiposusuarios objTodigotipousuario;
+    private ProductosProv objProductosProv;
     private Usuarios objUsurios;
     private Productostienda productostienda;
     private Productospool productospool;
@@ -121,12 +133,14 @@ public class ProdMB implements Serializable {
     private OrdenCarrito objOrdenCarrito;
     //Obtenemos la fecha actual para alamcenarla posteriormente
     Calendar calendar = Calendar.getInstance();
+    Date myDate = new Date();
 
   
     
     
     //Listas de Objetos del sistema    
-    private List<Productostienda> listaProductostienda;    
+    private List<Productostienda> listaProductostienda;  
+    private List<ProductosProv> listaProductosProv;
     private List<Productospool> listaProductospool;
     private List<Ventas> listaVentas;
     private List<Usuarios> listaUsuarios;
@@ -140,8 +154,15 @@ public class ProdMB implements Serializable {
     
     // Propiedades de cada objeto a utilizar
     private int codigousuario;  
-    private String nombreUsuario;   
-    private String apellidos; 
+    private String nombreUsuario; 
+    private Date fecha;
+    private String cif; 
+    private String nombreProv; 
+    private String direccionProv;
+    private String tfnoProv;
+    private int cantidadProv;
+    private double precioProv;
+    private String apellidos;    
     private String usuario;   
     private String clave;  
     private String tarjetacredito;
@@ -159,14 +180,103 @@ public class ProdMB implements Serializable {
     private Date fechareposicion;   
     private int cantidadCarrito = 0;
 
+    public ProductosProv getObjProductosProv() {
+        return objProductosProv;
+    }
+
+    public void setObjProductosProv(ProductosProv objProductosProv) {
+        this.objProductosProv = objProductosProv;
+    }
+
+    public List<ProductosProv> getListaProductosProv() {
+        
+        if (listaProductosProv == null) {
+        try {
+            Gson gson = new Gson();
+            String lista = proveedores.findAll_JSON(String.class);
+            Type tipoListaProv = new TypeToken<List<ProductosProv>>() {
+            }.getType();
+            List<ProductosProv> listac = gson.fromJson(lista, tipoListaProv);
+            listaProductosProv = listac;
+            // FacesContext.getCurrentInstance().addMessage("men", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Listado generado correctamente."));
+        } catch (ClientErrorException | JsonParseException | NumberFormatException e) {
+                 FacesContext.getCurrentInstance().addMessage("men", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Error", "Listado erróneo: " + e.toString()));
+            }
+        }
+        return listaProductosProv;
+    }
+
+    public void setListaProductosProv(List<ProductosProv> listaProductosProv) {
+        this.listaProductosProv = listaProductosProv;
+    }
+
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+
+    public String getCif() {
+        return cif;
+    }
+
+    public void setCif(String cif) {
+        this.cif = cif;
+    }
+
+    public String getNombreProv() {
+        return nombreProv;
+    }
+
+    public void setNombreProv(String nombreProv) {
+        this.nombreProv = nombreProv;
+    }
+
+    public String getDireccionProv() {
+        return direccionProv;
+    }
+
+    public void setDireccionProv(String direccionProv) {
+        this.direccionProv = direccionProv;
+    }
+
+    public String getTfnoProv() {
+        return tfnoProv;
+    }
+
+    public void setTfnoProv(String tfnoProv) {
+        this.tfnoProv = tfnoProv;
+    }
+
+    public int getCantidadProv() {
+        return cantidadProv;
+    }
+
+    public void setCantidadProv(int cantidadProv) {
+        this.cantidadProv = cantidadProv;
+    }
+
+    public double getPrecioProv() {
+        return precioProv;
+    }
+
+    public void setPrecioProv(double precioProv) {
+        this.precioProv = precioProv;
+    }
+    
+    
+    
+    
+
     public List<OrdenCarrito> getListaOrdenCarritoSeleccionar() {
         return listaOrdenCarritoSeleccionar;
     }
 
     public void setListaOrdenCarritoSeleccionar(List<OrdenCarrito> listaOrdenCarritoSeleccionar) {
         this.listaOrdenCarritoSeleccionar = listaOrdenCarritoSeleccionar;
-    }
-    
+    }  
     
     
 
@@ -194,11 +304,10 @@ public class ProdMB implements Serializable {
 
     public void setListaCantidad(List<String> listaCantidad) {
         this.listaCantidad = listaCantidad;
-    }
+    }   
     
     
-    
-    //Here
+   
     public List<OrdenCarrito> getListaOrdenCarrito() {
                 
         if (listaOrdenCarrito == null) {
@@ -879,7 +988,7 @@ public class ProdMB implements Serializable {
             precio = productostienda.getPrecio();
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("productospool", productospool);
             FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("productostienda", productostienda);
-            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Cambio la cantidad a comprar del producto: "+codigoProducto+"-"+nombreProducto));
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Selección del producto: "+codigoProducto+"-"+nombreProducto));
 
             
             try {
@@ -909,7 +1018,9 @@ public class ProdMB implements Serializable {
             
           stockFacade.remove(objStock);          
           productostiendaFacade.remove(productostienda);
-          productospoolFacade.remove(productospool);          
+          productospoolFacade.remove(productospool);   
+          listaProductostienda = null;
+          listaProductospool = null;
           
           FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Fue eliminado el producto"+codigoProducto+"-"+productospool.getNombre()+" correctamente."));
            
