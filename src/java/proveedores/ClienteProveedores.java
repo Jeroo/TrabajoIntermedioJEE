@@ -26,7 +26,7 @@ public class ClienteProveedores {
 
     private WebTarget webTarget;
     private Client client;
-    private static final String BASE_URI = "http://localhost:8080/TiendaWeb/webresources";
+    private static final String BASE_URI = "http://localhost:8080/Proveedores/webresources";
 
     public ClienteProveedores() {
         client = javax.ws.rs.client.ClientBuilder.newClient();

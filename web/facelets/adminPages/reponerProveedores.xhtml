@@ -3,51 +3,111 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <body>
 
         <ui:composition template="./../template_principal.xhtml">
 
             <ui:define name="content">
-                <p:menubar>
-                    <p:menuitem id="volver" value="Volver" outcome="/facelets/adminPages/admin.xhtml" icon="ui-icon-arrowreturn-1-w"/>
-                </p:menubar>
-                <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
-                <p:dataTable var="prod" value="#{prodMB.listaProductosProv}" rows="4"
-                                 paginator="true"
-                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                 rowsPerPageTemplate="5,10,15" editable="true" style="margin-bottom:20px">
-               <f:facet name="header">
-                   Listado de Productos Proveedores
-               </f:facet>
-          
-                <p:column headerText="CODIGO">                            
-                    <h:outputText value="#{prod.productosProvPK.codigoproducto}" />
-                </p:column>
-                <p:column headerText="NOMBRE">
-                    <p:cellEditor>
-                        <f:facet name="output"><h:outputText value="#{prod.nombre}" /></f:facet>
-                        <f:facet name="input"><p:inputText value="#{prod.nombre}" style="width:100%"/></f:facet>
-                    </p:cellEditor>                                
-                </p:column>
-                 <p:column headerText="CANTIDAD">
-                    <p:cellEditor>
-                        <f:facet name="output"><h:outputText value="#{prod.cantidad}" /></f:facet>
-                        <f:facet name="input"><p:inputText value="#{prod.cantidad}" style="width:100%"/></f:facet>
-                    </p:cellEditor>                                
-                </p:column>
-                <p:column headerText="PRECIO">
-                    <p:cellEditor>
-                        <f:facet name="output"><h:outputText value="#{prod.precio}" /></f:facet>
-                        <f:facet name="input"><p:inputText value="#{prod.precio}" style="width:100%"/></f:facet>
-                    </p:cellEditor>                                
-                </p:column>
-                <p:column style="width:32px">
-                    <p:rowEditor />
-                </p:column>
-            </p:dataTable>
+                <p:layout fullPage="true">
+
+                <p:layoutUnit position="center">
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                     <p:menubar>
+                         <p:menuitem id="volver" value="Volver" outcome="/facelets/adminPages/admin.xhtml" icon="ui-icon-arrowreturn-1-w"/>
+                    </p:menubar>                    
+                    <p></p>
+                    <h2>Selecciona un tipo de búsqueda.</h2>
+                   
+                    <p:growl id="msgs" showDetail="true" life="5200" autoUpdate="true" severity="info"/>
+                    <h:form>
+                        <p:accordionPanel>
+                            <p:tab title="Búsqueda de Productos por Cantidad">
+                                <h:panelGrid columns="2" cellpadding="10">
+                                     <p:outputLabel for="prodCantidad" value="Código Producto:" />
+                                     <p:inputText id="prodCantidad" value="#{prodMB.codigoProducto}" size="20" label="Código Producto" placeholder="Ejemplo: P-0005"/>
+                                     <p:outputLabel for="canti" value="Cantidad:" />
+                                     <p:inputText id="canti" value="#{prodMB.cantidad}" size="5" label="Cantidad" placeholder="10"/>
+                                     <p:commandButton update="tblProProv" action="#{prodMB.buscaPorCantidad}" value="ENVIAR" id="btnBuscarPorCantidad"/>
+
+                                </h:panelGrid>
+
+                            </p:tab>
+                            <p:tab title="Búsqueda de Productos por Fecha">
+                                <h:panelGrid columns="2" cellpadding="10">
+                                     <p:outputLabel for="productoFecha" value="Código Producto:" />
+                                     <p:inputText id="productoFecha" value="#{prodMB.codigoProductoProv}"/>
+                                     <p:outputLabel for="cantidaFecha" value="Cantidad:" />
+                                     <p:inputText id="cantidaFecha" value="#{prodMB.cantidadProv}"/>
+                                     <p:outputLabel for="fecha" value="Fecha:" />                                     
+                                     <p:calendar id="fecha" value="#{prodMB.fecha}" pattern="yyyy-MM-dd" mask="true" showOn="button" />
+                                     <p:commandButton update="tblProProv" action="#{prodMB.buscaPorFecha}" value="ENVIAR" id="btnBuscarPorFecha"/>
+                                </h:panelGrid>                               
+                            </p:tab>
+                        </p:accordionPanel>  
+                        
+                     
+                    </h:form>
+                    <h:form id="tblProProv">
+                        <p></p>
+                        <p></p>
+                        <p:panel header="Productos Por Proveedores">
+                            <h:panelGrid columns="3" cellpadding="5">
+                                <p:dataTable id="multipleDT" var="prod" value="#{prodMB.listaProductosProv}" rows="10"
+                                                 paginator="true"
+                                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                 rowsPerPageTemplate="5,10,15" style="margin-bottom:20px"
+                                                 editable="true"
+                                                 >
+                               <f:facet name="header">
+                                   Listado de Productos Proveedores
+                               </f:facet>
+                                    
+                                    <p:ajax event="rowEdit" listener="#{prodMB.onRowEditProv}" update=":tblProProv:multipleDT" />
+                                <p:ajax event="rowEditCancel" listener="#{prodMB.onRowCancelProv}" update="multipleDT"/>
+                                <p:column headerText="PROVEEDORES">                            
+                                    <h:outputText value="#{prod.proveedores.nombre}" />
+                                </p:column>
+                                <p:column headerText="CODIGO">                            
+                                    <h:outputText value="#{prod.productosProvPK.codigoproducto}" />
+                                </p:column>
+                                <p:column headerText="NOMBRE">
+                                   <h:outputText value="#{prod.nombre}" />                             
+                                </p:column>
+                                 <p:column headerText="CANTIDAD">
+                                   
+                                     <p:cellEditor>
+                                        <f:facet name="output"><h:outputText value="#{prod.cantidad}" /> </f:facet>
+                                        <f:facet name="input">
+                                            
+                                             <p:inputText id="cantidadInput" value="#{prod.cantidad}" style="width:100%"/>
+                                        </f:facet>
+                                    </p:cellEditor>
+                                </p:column>
+                                <p:column headerText="PRECIO">
+                                   <h:outputText value="#{prod.precio}" />                             
+                                </p:column>
+                                <p:column headerText="FECHA">
+                                    <h:outputText value="#{prod.fechaent}" >
+                                        <f:convertDateTime pattern="dd-MM-yyyy" />
+                                    </h:outputText>                             
+                                </p:column>
+                                <p:column headerText="COMPRAR" style="width:100px">
+                                    <p:rowEditor />
+                                </p:column>
+                            </p:dataTable>
+                            </h:panelGrid>
+                        </p:panel>
+                    </h:form> 
+                    
+                 
+                </p:layoutUnit>
+
+            </p:layout>
             </ui:define>
 
         </ui:composition>

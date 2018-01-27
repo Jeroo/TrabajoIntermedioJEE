@@ -118,7 +118,7 @@ public class Proveedores implements Serializable {
 
     @Override
     public String toString() {
-         return cif + "-"+nombre;
+        return cif + "-"+nombre;
     }
     
 }

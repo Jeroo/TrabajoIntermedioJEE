@@ -96,7 +96,9 @@
                             <f:facet name="header">
                                 <h:outputText value="Fecha Venta" />
                             </f:facet>
-                             <h:outputText value="#{ventas.fechaventa}" />
+                             <h:outputText value="#{ventas.fechaventa}" >
+                                 <f:convertDateTime pattern="dd-MM-yyyy" />
+                             </h:outputText>
                         </p:column>              
                         
                     </p:dataTable>

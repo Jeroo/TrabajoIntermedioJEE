@@ -5,6 +5,7 @@
  */
 package mbeans;
 
+
 import beans.ProductosProv;
 import beans.Productospool;
 import beans.ProductospoolFacade;
@@ -21,8 +22,6 @@ import beans.VentasFacade;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
-import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,53 +29,24 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
-import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
-import javax.imageio.ImageIO;
-import javax.persistence.criteria.Path;
-import javax.servlet.ServletContext;
-import static javax.servlet.SessionTrackingMode.URL;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
 import javax.ws.rs.ClientErrorException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.net.whois.WhoisClient;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.event.RowEditEvent;
 import org.primefaces.event.SelectEvent;
-import org.primefaces.event.UnselectEvent;
-import org.primefaces.model.UploadedFile;
 import org.uah.viewmodels.OrdenCarrito;
 import proveedores.ClienteProveedores;
 
@@ -141,6 +111,7 @@ public class ProdMB implements Serializable {
     //Listas de Objetos del sistema    
     private List<Productostienda> listaProductostienda;  
     private List<ProductosProv> listaProductosProv;
+    private List<ProductosProv> listaProductosProvSelect;
     private List<Productospool> listaProductospool;
     private List<Ventas> listaVentas;
     private List<Usuarios> listaUsuarios;
@@ -159,6 +130,7 @@ public class ProdMB implements Serializable {
     private String cif; 
     private String nombreProv; 
     private String direccionProv;
+    private String codigoProductoProv;
     private String tfnoProv;
     private int cantidadProv;
     private double precioProv;
@@ -180,6 +152,15 @@ public class ProdMB implements Serializable {
     private Date fechareposicion;   
     private int cantidadCarrito = 0;
 
+    public String getCodigoProductoProv() {
+        return codigoProductoProv;
+    }
+
+    public void setCodigoProductoProv(String codigoProductoProv) {
+        this.codigoProductoProv = codigoProductoProv;
+    }
+
+    
     public ProductosProv getObjProductosProv() {
         return objProductosProv;
     }
@@ -205,6 +186,16 @@ public class ProdMB implements Serializable {
         }
         return listaProductosProv;
     }
+
+    public List<ProductosProv> getListaProductosProvSelect() {
+        return listaProductosProvSelect;
+    }
+
+    public void setListaProductosProvSelect(List<ProductosProv> listaProductosProvSelect) {
+        this.listaProductosProvSelect = listaProductosProvSelect;
+    }
+    
+    
 
     public void setListaProductosProv(List<ProductosProv> listaProductosProv) {
         this.listaProductosProv = listaProductosProv;
@@ -306,7 +297,16 @@ public class ProdMB implements Serializable {
         this.listaCantidad = listaCantidad;
     }   
     
-    
+    public void onDateSelect(SelectEvent event) {
+        
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        java.sql.Date sqlDate = new java.sql.Date((long) event.getObject());
+        fecha = sqlDate;
+        //facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Date Selected", format.format(event.getObject())));
+        FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Selecciono la Fecha: "+fecha));
+
+    }
    
     public List<OrdenCarrito> getListaOrdenCarrito() {
                 
@@ -706,13 +706,15 @@ public class ProdMB implements Serializable {
                 objStock.setUsuariorepuso(usuario); 
                 objStock.setFechareposicion(calendar.getTime().toString());                               
                 stockFacade.edit(objStock);
-                FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Reposición corresta"));
+                FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Reposición corresta en el Stock de la Tienda de Computadoras"));
                 listaStock = null;
             } else {
                 FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "No existe el producto en stock."+codigoProducto));
+                return;
             }
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Reposición de producto incorrecta: " + e.toString()));
+             return;
         }        
     }
     
@@ -905,8 +907,7 @@ public class ProdMB implements Serializable {
         }
         
         return total;
-    }
-    
+    }    
     
     public void handleChangeCarrito(ValueChangeEvent event){
     
@@ -1216,6 +1217,89 @@ public class ProdMB implements Serializable {
       
     }
    
+    
+     public void buscaPorCantidad() {
+                   
+         try {
+             
+             if (cantidad < 0 || codigoProducto.isEmpty() || codigoProducto == null) {
+                 
+                FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Debe completar los campos para realizar la busquedad"));
+                listaProductosProv = null;
+                getListaProductosProv();
+                return;
+
+             }
+             
+             Gson gson = new Gson();
+             String listaProductos =  proveedores.findAllByCantidad_JSON(String.class, codigoProducto, Integer.toString(cantidad));
+             Type tipoListaProv = new TypeToken<List<ProductosProv>>() {
+             }.getType();
+             List<ProductosProv> listaProv = gson.fromJson(listaProductos, tipoListaProv);
+             listaProductosProv = listaProv;
+             getListaProductosProv();
+             
+             if (listaProv.size() > 0) {
+               
+                 FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Listado de productos encontrados. Cantidad encontrada: "+listaProv.size()));
+  
+             }else {
+             
+                 FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "No hay resultados para esta busqueda"));
+
+             
+             }
+
+             
+         } catch (Exception e) {
+             
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Listado erróneo: " + e.toString()));
+
+         }
+       
+       
+    }
+     
+     
+     public void buscaPorFecha() {
+                   
+         try {
+             
+             if (cantidadProv < 0 || codigoProductoProv.isEmpty() || codigoProductoProv == null || fecha == null) {
+                 
+                FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Debe completar los campos para realizar la busquedad"));
+                listaProductosProv = null;
+                getListaProductosProv();
+                return;
+
+             }
+             
+            DateFormat  format = new SimpleDateFormat("yyyy-MM-dd");
+            // java.util.Date parsed = format.parse(fecha.toString());
+            java.sql.Date sql = new java.sql.Date(fecha.getTime());
+            Gson gson = new Gson();
+            String listaProductos =  proveedores.findAllByFecha_JSON(String.class, codigoProductoProv, Integer.toString(cantidadProv), sql.toString());
+            Type tipoListaProv = new TypeToken<List<ProductosProv>>() {
+            }.getType();
+            List<ProductosProv> listaProv = gson.fromJson(listaProductos, tipoListaProv);
+            listaProductosProv = listaProv; 
+             
+        
+             getListaProductosProv();
+             FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Aviso", "Listado de productos encontrados"));
+
+             
+         } catch (Exception e) {
+             
+            FacesContext.getCurrentInstance().addMessage("msgs", new FacesMessage(FacesMessage.SEVERITY_INFO, "Error", "Listado erróneo: " + e.toString()));
+
+         }
+       
+       
+    }
+     
+     
+     
      
      
     //edición y guardado de la modificación de una fila
@@ -1232,6 +1316,71 @@ public class ProdMB implements Serializable {
     public void onRowCancel(RowEditEvent event) {
         productostienda = (Productostienda) event.getObject();
         FacesMessage msg = new FacesMessage("Modificación cancelada", productostienda.getProductospool().getNombre());
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
+    
+     //edición y guardado de la modificación de una fila
+    public void onRowEditProv(RowEditEvent event) {
+        
+        try {
+            
+            objProductosProv = (ProductosProv) event.getObject();          
+            codigoProductoProv = objProductosProv.getProductosProvPK().getCodigoproducto();
+            
+            Gson gson = new Gson();
+            String lista = proveedores.findAll_JSON(String.class);
+            Type tipoListaProv = new TypeToken<List<ProductosProv>>() {
+            }.getType();
+            List<ProductosProv> listac = gson.fromJson(lista, tipoListaProv);
+            listaProductosProv = listac;
+            cantidadProv = objProductosProv.getCantidad();
+            
+            codigoProducto = objProductosProv.getProductosProvPK().getCodigoproducto();
+            cantidad = cantidadProv;
+            
+            reponeStock();
+
+            for (ProductosProv ppv : listaProductosProv) {
+                 
+                if (ppv.getProductosProvPK().getCodigoproducto().equals(objProductosProv.getProductosProvPK().getCodigoproducto()) 
+                        && ppv.getProductosProvPK().getCif().equals(objProductosProv.getProductosProvPK().getCif())) {
+                   
+                    if (cantidadProv <= ppv.getCantidad()) {
+                        
+                        objProductosProv.setCantidad(ppv.getCantidad()-cantidadProv);
+                        
+                        
+                        proveedores.edit_JSON(objProductosProv,objProductosProv.getProductosProvPK().getCodigoproducto());
+
+                        FacesMessage msg = new FacesMessage("Producto Comprado:", objProductosProv.getNombre());
+                        FacesContext.getCurrentInstance().addMessage(null, msg);
+                        
+                        return;
+
+                    }else {
+                    
+                         FacesMessage msg = new FacesMessage("La cantidad introducida es mayor a la cantidad que se tiene en stock para el producto: ", objProductosProv.getNombre()+" Cantidad Disponible en Stock es: "+ppv.getCantidad());
+                         FacesContext.getCurrentInstance().addMessage(null, msg);
+                         return;
+                    }
+                    
+                }
+            }
+
+
+            
+        } catch (Exception e) {
+            
+            FacesMessage msg = new FacesMessage("Error al realizar la compra intente otra vez. ", e.toString());
+            FacesContext.getCurrentInstance().addMessage(null, msg);
+        }
+       
+    }
+    
+     //edición y cancelación de la modificación de una fila
+    public void onRowCancelProv(RowEditEvent event) {
+        objProductosProv = (ProductosProv) event.getObject();
+        FacesMessage msg = new FacesMessage("Compra cancelada", objProductosProv.getNombre());
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
     

@@ -74,7 +74,7 @@ public class ProductosProvPK implements Serializable {
 
     @Override
     public String toString() {
-         return codigoproducto + "-" + cif;
+        return codigoproducto + "-" + cif;
     }
     
 }
